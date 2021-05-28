@@ -20,7 +20,7 @@ class PythonWriter (name: String, moduleName: String, description: String) {
     }
 
     private fun defFunc() {
-        var methods = StringBuilder("static PyMethodDef ${moduleName}Methods[] = {" + System.lineSeparator())
+        var methods = StringBuilder("static PyMethodDef ${moduleName}_methods[] = {" + System.lineSeparator())
         methodList.forEach {
             methods.append("\t{\"${it.first}\", method_${it.first}, METH_VARARGS, \"${it.second}\"}," + System.lineSeparator())
         }
@@ -43,7 +43,7 @@ class PythonWriter (name: String, moduleName: String, description: String) {
                 "$moduleName",
                 "$moduleDescription",
                 $memorySize,
-                ${moduleName}Methods
+                ${moduleName}_methods
             };
 
             PyMODINIT_FUNC PyInit_${moduleName}(void) {
