@@ -25,8 +25,11 @@ class PythonWriter (name: String, moduleName: String, description: String) {
             methods.append("\t{\"${it.first}\", method_${it.first}, METH_VARARGS, \"${it.second}\"}," + System.lineSeparator())
         }
         // remove last comma
-        methods.setLength(methods.length - 2)
-        methods.append(System.lineSeparator() + "};")
+        // methods.setLength(methods.length - 2)
+        // methods.append(System.lineSeparator() + "};")
+
+        methods.append("\t{NULL, NULL, 0, NULL}" + System.lineSeparator())
+        methods.append("};")
 
         writeToFile(methods.toString())
     }
@@ -91,5 +94,5 @@ fun main() {
     aws.writeFunc("static","PyObject *", "aws_crt_mem_release")
 
     aws.defModule(-1)
-    aws.setupPy("1.0.0", "Benjamin Tu", "bnjamit@amazon.com",)
+    aws.setupPy("1.0.0", "Benjamin Tu", "bnjamit@amazon.com")
 }
