@@ -3,11 +3,12 @@ import java.lang.StringBuilder
 
 // import software.amazon.smithy.model.shapes.*
 
-class PythonWriter (name: String, moduleName: String) {
+class PythonWriter (name: String, moduleName: String, description: String) {
     private val filename: String = name
-    private val commentCharacter: String = "//"
+//    private val commentCharacter: String = "//"
     private val fileObj: File = File(name)
     private val moduleName = moduleName
+    private val moduleDescription : String = description
     private var methodList = mutableListOf<Pair<String, String>>()
 
     init {
@@ -19,25 +20,25 @@ class PythonWriter (name: String, moduleName: String) {
     }
 
     private fun defFunc() {
-        var methods = StringBuilder("static PyMethodDef ${moduleName}Methods[] = {\n")
+        var methods = StringBuilder("static PyMethodDef ${moduleName}Methods[] = {" + System.lineSeparator())
         methodList.forEach {
-            methods.append("\t{\"${it.first}\", method_${it.first}, METH_VARARGS, \"${it.second}\"},\n")
+            methods.append("\t{\"${it.first}\", method_${it.first}, METH_VARARGS, \"${it.second}\"}," + System.lineSeparator())
         }
         // remove last comma
         methods.setLength(methods.length - 2)
-        methods.append("\n};")
+        methods.append(System.lineSeparator() + "};")
 
         writeToFile(methods.toString())
     }
 
-    fun defModule(comment: String, memorySize: Int) {
+    fun defModule(memorySize: Int) {
         defFunc()
         writeToFile(
         """
             static struct PyModuleDef ${moduleName}_module = {
                 PyModuleDef_HEAD_INIT,
                 "$moduleName",
-                "$comment",
+                "$moduleDescription",
                 $memorySize,
                 ${moduleName}Methods
             };
@@ -48,27 +49,47 @@ class PythonWriter (name: String, moduleName: String) {
         """.trimIndent())
     }
 
-    fun writeFunc(attribute: String, returnType: String, funcName: String, comment: String) {
+    fun writeFunc(attribute: String, returnType: String, funcName: String, comment: String = "") {
         // add method to list
         methodList.add(Pair<String, String>(funcName, comment))
 
         writeToFile(
         """
-            $attribute $returnType $funcName(PyObject *self, PyObject *args) {
+            $attribute $returnType method_$funcName(PyObject *self, PyObject *args) {
                 // placeholder for parsing argument
                 // return placeholder
             }
         """.trimIndent())
     }
+
+    fun setupPy(version: String, author: String, email:String ) {
+        var setupFile = File("setup.py")
+        setupFile.writeText(
+            """
+            from distutils.core import setup, Extension
+
+            def main():
+                setup(name="$moduleName",
+                      version="$version",
+                      description="$moduleDescription",
+                      author="$author",
+                      author_email="$email",
+                      ext_modules=[Extension("$moduleName", ["$filename"])])
+
+            if __name__ == "__main__":
+                main()
+        """.trimIndent())
+    }
 }
 
 fun main() {
-    val aws = PythonWriter("aws.c", "aws")
+    val aws = PythonWriter("aws.c", "aws", "Python interface for the test aws in C library")
     aws.writeFunc("static","PyObject *", "aws_crt_init", "Python interface for the C library")
     aws.writeFunc("static","PyObject *", "aws_crt_clean_up", "Python interface for the C library")
     aws.writeFunc("static","PyObject *", "aws_crt_test_error", "Python interface for the C library")
     aws.writeFunc("static","PyObject *", "aws_crt_mem_acquire", "Python interface for the C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_mem_release", "Python interface for the C library")
+    aws.writeFunc("static","PyObject *", "aws_crt_mem_release")
 
-    aws.defModule("Python interface for the test aws in C library",-1)
+    aws.defModule(-1)
+    aws.setupPy("1.0.0", "Benjamin Tu", "bnjamit@amazon.com",)
 }
