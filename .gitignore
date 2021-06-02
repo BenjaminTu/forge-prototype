@@ -2,3 +2,12 @@
 */.idea
 */.gradle
 */build
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Intellij cache directory
+.idea
+
+# Ignore Gradle build output directory
+build

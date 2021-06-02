@@ -1,3 +1,6 @@
+
+package software.amazon.smithy.crt.python;
+
 import java.io.File
 import java.lang.StringBuilder
 
@@ -83,16 +86,4 @@ class PythonWriter (name: String, moduleName: String, description: String) {
                 main()
         """.trimIndent())
     }
-}
-
-fun main() {
-    val aws = PythonWriter("aws.c", "aws", "Python interface for the test aws in C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_init", "Python interface for the C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_clean_up", "Python interface for the C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_test_error", "Python interface for the C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_mem_acquire", "Python interface for the C library")
-    aws.writeFunc("static","PyObject *", "aws_crt_mem_release")
-
-    aws.defModule(-1)
-    aws.setupPy("1.0.0", "Benjamin Tu", "bnjamit@amazon.com")
 }
