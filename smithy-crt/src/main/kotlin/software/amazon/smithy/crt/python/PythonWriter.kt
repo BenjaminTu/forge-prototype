@@ -8,7 +8,7 @@ import java.lang.StringBuilder
 
 class PythonWriter (name: String, moduleName: String, description: String) {
     private val filename: String = name
-//    private val commentCharacter: String = "//"
+    private val commentCharacter: String = "//"
     private val fileObj: File = File(name)
     private val moduleName = moduleName
     private val moduleDescription : String = description
