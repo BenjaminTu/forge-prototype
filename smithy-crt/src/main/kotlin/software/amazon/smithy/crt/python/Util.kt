@@ -5,7 +5,7 @@ import software.amazon.smithy.model.shapes.StructureShape
 import software.amazon.smithy.model.traits.Trait.getIdiomaticTraitName
 import java.lang.StringBuilder
 
-const val POINTER_TRAIT = "com.amazonaws.ffi#pointer"
+const val POINTER_TRAIT = "com.aws.ffi#pointer"
 
 fun <T> Optional<T>.orNull(): T? = this.orElse(null)
 
