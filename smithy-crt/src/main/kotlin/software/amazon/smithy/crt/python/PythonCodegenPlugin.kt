@@ -25,36 +25,14 @@ class PythonCodegenPlugin : SmithyBuildPlugin {
 
         try {
             val model = pluginContext.model
-
-            // each method
-            val operations = model.operationShapes
-            operations.forEach {
-                var modelName = it
-                var input = model.getShape(it.input.orNull()).orNull() as? StructureShape
-                var output = model.getShape(it.output.orNull()).orNull() as? StructureShape
-
-                println(modelName)
-                println(input)
-                processInput(input)
-                println(output)
-                println()
-            }
+            val writer = PythonWriterNew(model)
+            writer.execute()
 
 //            it.accept(pluginContext.fileManifest.baseDir) { pythonFile ->
 //                pluginContext.fileManifest.addFile(pythonFile)
 //                LOG.info("Generated ${pythonFile.toAbsolutePath()}")
 //            }
-/*
-            val aws = PythonWriter("aws.c", "aws", "Python interface for the test aws in C library")
-            aws.writeFunc("static","PyObject *", "aws_crt_init", "Python interface for the C library")
-            aws.writeFunc("static","PyObject *", "aws_crt_clean_up", "Python interface for the C library")
-            aws.writeFunc("static","PyObject *", "aws_crt_test_error", "Python interface for the C library")
-            aws.writeFunc("static","PyObject *", "aws_crt_mem_acquire", "Python interface for the C library")
-            aws.writeFunc("static","PyObject *", "aws_crt_mem_release")
 
-            aws.defModule(-1)
-            aws.setupPy("1.0.0", "Benjamin Tu", "bnjamit@amazon.com")
-*/
         } catch (ex: Throwable) {
             System.err.println(ex.message)
         }

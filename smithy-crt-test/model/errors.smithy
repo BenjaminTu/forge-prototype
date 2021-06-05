@@ -19,6 +19,7 @@ structure aws_crt_error_str_input {
 
 structure aws_crt_error_str_output {
     @required
+    @const
     ret: string
 }
 
@@ -35,6 +36,7 @@ structure aws_crt_error_name_input {
 
 structure aws_crt_error_name_output {
     @required
+    @const
     ret: string
 }
 
@@ -51,6 +53,7 @@ structure aws_crt_error_debug_str_input {
 
 structure aws_crt_error_debug_str_output {
     @required
+    @const
     ret: string
 }
 
