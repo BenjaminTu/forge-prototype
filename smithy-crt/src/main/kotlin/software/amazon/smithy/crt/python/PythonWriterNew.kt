@@ -11,7 +11,7 @@ const val POINTER_TRAIT = "com.aws.ffi#pointer"
 const val CONST_TRAIT = "com.aws.ffi#const"
 const val OPAQUE_TRAIT = "com.aws.ffi#opaque"
 
-val MODULE_NAME = "aws"
+const val MODULE_NAME = "aws"
 val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
 val varMap = mapOf(
@@ -100,7 +100,7 @@ class PythonWriterNew (private val model: Model) {
     }
 
     private fun defFun(): String {
-        var methods = StringBuilder("static PyMethodDef ${MODULE_NAME}_methods[] = {" + System.lineSeparator())
+        val methods = StringBuilder("static PyMethodDef ${MODULE_NAME}_methods[] = {" + System.lineSeparator())
         methodList.forEach {
             methods.append("\t{\"$it\", method_$it, METH_VARARGS, \"\"}," + System.lineSeparator())
         }
@@ -185,7 +185,7 @@ class PythonWriterNew (private val model: Model) {
         return str.toString()
     }
 
-    fun finalize() {
+    private fun finalize() {
         println(defFun())
         println(defModule())
         println(setupPy())
