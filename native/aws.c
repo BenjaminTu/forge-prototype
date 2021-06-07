@@ -1,10 +1,17 @@
 #include <Python.h>
 
+typedef struct aws_allocator aws_crt_allocator;
+aws_crt_allocator *aws_crt_default_allocator(void);
+
 const char *aws_crt_init(void);
 const char *aws_crt_clean_up(void);
 const char *aws_crt_test_error(int);
 const char *aws_crt_mem_acquire(size_t size);
 const char *aws_crt_mem_release(void *mem);
+
+aws_crt_allocator *aws_crt_default_allocator() {
+    return malloc(10);
+}
 
 const char *aws_crt_init() {
     return "calling aws_crt_init";
@@ -26,6 +33,10 @@ const char *aws_crt_mem_release(void *mem) {
     return "calling aws_crt_test_error";
 }
 
+static PyObject *method_aws_crt_default_allocator(PyObject *self, PyObject *args) {
+    aws_crt_allocator * ret = aws_crt_default_allocator();
+    return PyLong_FromVoidPtr((void *)ret);
+}
 
 static PyObject *method_aws_crt_init(PyObject *self, PyObject *args) {
     const char *ret = aws_crt_init();
@@ -78,6 +89,7 @@ static PyMethodDef AwsMethods[] = {
     {"aws_crt_test_error", method_aws_crt_test_error, METH_VARARGS, "Python interface for the C library"},
     {"aws_crt_mem_acquire", method_aws_crt_mem_acquire, METH_VARARGS, "Python interface for the C library"},
     {"aws_crt_mem_release", method_aws_crt_mem_release, METH_VARARGS, "Python interface for the C library"},
+    {"aws_crt_default_allocator", method_aws_crt_default_allocator, METH_VARARGS, "Python interface for the C library"},
     {NULL, NULL, 0, NULL}
 };
 

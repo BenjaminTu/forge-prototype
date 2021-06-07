@@ -31,7 +31,6 @@ operation aws_crt_test_error {
 // AWS_CRT_API aws_crt_allocator *aws_crt_default_allocator(void);
 structure aws_crt_default_allocator_output {
     @required
-    @pointer
     ret: aws_crt_allocator
 }
 
