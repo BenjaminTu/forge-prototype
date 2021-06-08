@@ -125,7 +125,19 @@ if sys.platform != 'darwin' and sys.platform != 'win32':
                                # Up-to-date generated code is already in repo.
                                '-DDISABLE_PERL=ON', '-DDISABLE_GO=ON',
                            ]))
+    AWS_LIBS.append(AwsLib('s2n'))
+
 AWS_LIBS.append(AwsLib('aws-crt-ffi'))
+AWS_LIBS.append(AwsLib('aws-c-common'))
+AWS_LIBS.append(AwsLib('aws-c-cal'))
+AWS_LIBS.append(AwsLib('aws-c-io'))
+AWS_LIBS.append(AwsLib('aws-checksums'))
+AWS_LIBS.append(AwsLib('aws-c-compression'))
+AWS_LIBS.append(AwsLib('aws-c-event-stream'))
+AWS_LIBS.append(AwsLib('aws-c-http'))
+AWS_LIBS.append(AwsLib('aws-c-auth'))
+AWS_LIBS.append(AwsLib('aws-c-mqtt'))
+AWS_LIBS.append(AwsLib('aws-c-s3'))
 
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 DEP_BUILD_DIR = os.path.join(PROJECT_DIR, 'build', 'deps')
