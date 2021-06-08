@@ -24,7 +24,7 @@ val varMap = mapOf(
 
 val returnMap = mapOf(
     "const char *" to "PyUnicode_FromString",
-    "int32_t" to "PyLong_From_Long",
+    "int32_t" to "PyLong_FromLong",
     "size_t" to "PyLong_fromSize_t",
 )
 
@@ -85,11 +85,11 @@ class PythonWriterNew (private val model: Model) {
             }
             returnMap[returnType] == null -> {
                 // object pointers (no entry)
-                "PyLong_FromVoidPtr((void *)ret)"
+                "return PyLong_FromVoidPtr((void *)ret)"
             }
             else -> {
                 // primitive (entry exists)
-                "${returnMap[returnType]}(ret)"
+                "return ${returnMap[returnType]}(ret)"
             }
         }
     }
@@ -118,28 +118,15 @@ class PythonWriterNew (private val model: Model) {
                 "",
                 -1,
                 ${MODULE_NAME}_methods
+                NULL,
+                NULL,
+                NULL,
+                NULL
             };
 
             PyMODINIT_FUNC PyInit_${MODULE_NAME}(void) {
                 return PyModule_Create(&${MODULE_NAME}_module);
             }
-        """.trimIndent()
-    }
-
-    private fun setupPy(): String {
-        return """
-            from distutils.core import setup, Extension
-
-            def main():
-                setup(name="$MODULE_NAME",
-                      version="1.0.0",
-                      description="",
-                      author="",
-                      author_email="",
-                      ext_modules=[Extension("$MODULE_NAME", ["$MODULE_NAME.c"])])
-
-            if __name__ == "__main__":
-                main()
         """.trimIndent()
     }
 
@@ -152,7 +139,8 @@ class PythonWriterNew (private val model: Model) {
         val inputFields = getInputFields(input)
         val outputField = getOutputFields(output)
 
-        val str = StringBuilder("static PyObject *method_${op.id.name} (PyObject *self, PyObject *args) {" + System.lineSeparator())
+        val str = StringBuilder("static PyObject *method_${op.id.name}(PyObject *self, PyObject *args) {" + System.lineSeparator())
+        str.append("\t(void)self;" + System.lineSeparator() + "\t(void)args;" + System.lineSeparator())
 
         // argument parse
         if (inputFields.isNotEmpty()) {
@@ -165,7 +153,7 @@ class PythonWriterNew (private val model: Model) {
             val formatArgs = inputFields.mapIndexed { i, _ -> "&${varName[i]}" }.joinToString (", ")
             str.append(System.lineSeparator())
             str.append("\t/* Parse arguments */" + System.lineSeparator())
-            str.append("\tif (!PyArg_ParseTuple(args, \"$format\", $formatArgs) {" + System.lineSeparator())
+            str.append("\tif (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {" + System.lineSeparator())
             str.append("\t\t return NULL;" + System.lineSeparator())
             str.append("\t}" + System.lineSeparator())
         }
@@ -179,7 +167,7 @@ class PythonWriterNew (private val model: Model) {
         str.append("${op.id.name}($params);" + System.lineSeparator())
 
         // return
-        str.append("\treturn ${getReturnType(outputField)}" + System.lineSeparator())
+        str.append("\t${getReturnType(outputField)};" + System.lineSeparator())
 
         str.append("}" + System.lineSeparator())
         return str.toString()
@@ -188,12 +176,12 @@ class PythonWriterNew (private val model: Model) {
     private fun finalize() {
         println(defFun())
         println(defModule())
-        println(setupPy())
     }
 
     fun execute() {
         // for each method
-        println("#include <Python.h>" + System.lineSeparator())
+        println("#include <Python.h>")
+        println("#include \"../aws-crt-ffi/src/api.h\"")
         val operations = model.operationShapes
         operations.forEach {
             println(writeFun(it))

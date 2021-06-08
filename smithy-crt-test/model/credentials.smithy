@@ -104,7 +104,7 @@ structure aws_crt_credentials_new_input {
 
 structure aws_crt_credentials_new_output {
     @required
-    ret: aws_crt_credentials_options,
+    ret: aws_crt_credentials,
 }
 
 operation aws_crt_credentials_new {

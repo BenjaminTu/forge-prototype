@@ -1,0 +1,5 @@
+setup.py
+awscrt.egg-info/PKG-INFO
+awscrt.egg-info/SOURCES.txt
+awscrt.egg-info/dependency_links.txt
+awscrt.egg-info/top_level.txt
