@@ -118,7 +118,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
                 "$MODULE_NAME",
                 "",
                 -1,
-                ${MODULE_NAME}_methods
+                ${MODULE_NAME}_methods,
                 NULL,
                 NULL,
                 NULL,

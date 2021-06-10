@@ -1,3 +1,5 @@
+the smithy models are in: `./smithy-crt-test/model`
+
 to generate code: `./gradlew :smithy-crt-test:build`
 
 to run generated extension: ` python3 -m pip install . --verbose` (recommend using a virtual environment)
