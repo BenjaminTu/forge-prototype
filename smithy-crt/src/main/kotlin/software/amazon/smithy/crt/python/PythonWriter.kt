@@ -1,89 +1,195 @@
+package software.amazon.smithy.crt.python
 
-package software.amazon.smithy.crt.python;
-
-import java.io.File
+import software.amazon.smithy.model.Model
+import software.amazon.smithy.model.SourceLocation
+import software.amazon.smithy.model.node.ExpectationNotMetException
+import software.amazon.smithy.model.shapes.OperationShape
+import software.amazon.smithy.model.shapes.ShapeId
+import software.amazon.smithy.model.shapes.StructureShape
 import java.lang.StringBuilder
 
-// import software.amazon.smithy.model.shapes.*
+const val CTYPE_TRAIT = "com.aws.ffi#ctype"
+const val POINTER_TRAIT = "com.aws.ffi#pointer"
+const val CONST_TRAIT = "com.aws.ffi#const"
+const val OPAQUE_TRAIT = "com.aws.ffi#opaque"
 
-class PythonWriter (name: String, moduleName: String, description: String) {
-    private val filename: String = name
-    private val commentCharacter: String = "//"
-    private val fileObj: File = File(name)
-    private val moduleName = moduleName
-    private val moduleDescription : String = description
-    private var methodList = mutableListOf<Pair<String, String>>()
+const val MODULE_NAME = "aws"
+val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
-    init {
-        fileObj.writeText("#include <Python.h>" + System.lineSeparator() + System.lineSeparator())
+private val varMap = mapOf(
+    "const char *" to 's',
+    "int32_t" to 'i',
+    "size_t" to 'n',
+    "uint8_t" to 'I',
+    "uint64_t" to 'I',
+)
+
+private val returnMap = mapOf(
+    "const char *" to "PyUnicode_FromString",
+    "int32_t" to "PyLong_FromLong",
+    "size_t" to "PyLong_fromSize_t",
+)
+
+
+class PythonWriter(private val writer: MyWriter, private val model: Model) {
+    private var methodList = mutableListOf<String>()
+
+    private fun getCTypeName(id: ShapeId): String {
+        // TODO: should use expectTrait instead of findTrait
+        val cTypeTrait = model.expectShape(id).findTrait(CTYPE_TRAIT).orNull()
+        val res = cTypeTrait?.toNode()?.expectObjectNode()?.expectStringMember("typename").toString()
+        // TODO: same here
+        val opaqueTrait = model.expectShape(id).findTrait(OPAQUE_TRAIT).orNull()
+        return if (opaqueTrait != null) "$res *" else res
     }
 
-    private fun writeToFile(text: String) {
-        fileObj.appendText(text + System.lineSeparator() + System.lineSeparator())
+    private fun getFormat(cTypeName: String): Char {
+        // return format, else treat as object pointer
+        return varMap[cTypeName] ?: 'o'
     }
 
-    private fun defFunc() {
-        var methods = StringBuilder("static PyMethodDef ${moduleName}_methods[] = {" + System.lineSeparator())
-        methodList.forEach {
-            methods.append("\t{\"${it.first}\", method_${it.first}, METH_VARARGS, \"${it.second}\"}," + System.lineSeparator())
+    private fun getReturnType(returnType: String?): String {
+        return when {
+            returnType == null -> {
+                // no return type (void)
+                "Py_RETURN_NONE"
+            }
+            returnMap[returnType] == null -> {
+                // object pointers (no entry)
+                "return PyLong_FromVoidPtr((void *)ret)"
+            }
+            else -> {
+                // primitive (entry exists)
+                "return ${returnMap[returnType]}(ret)"
+            }
         }
-        // remove last comma
-        // methods.setLength(methods.length - 2)
-        // methods.append(System.lineSeparator() + "};")
-
-        methods.append("\t{NULL, NULL, 0, NULL}" + System.lineSeparator())
-        methods.append("};")
-
-        writeToFile(methods.toString())
     }
 
-    fun defModule(memorySize: Int) {
-        defFunc()
-        writeToFile(
-        """
-            static struct PyModuleDef ${moduleName}_module = {
+    /**
+     * Get structure's(input/output) fields
+     *
+     * @param struct StructureShape to analyze
+     * @return Returns the Ids of the field as a List of ShapeId
+     */
+
+    private fun getFields(struct: StructureShape): List<String> {
+        return struct.allMembers.toList().map{
+            val str = StringBuilder()
+
+            if (it.second.hasTrait(CONST_TRAIT)) {
+                str.append("const ")
+            }
+
+            str.append(getCTypeName(it.second.target))
+
+            if (it.second.hasTrait(POINTER_TRAIT)) {
+                str.append(" *")
+            }
+
+            str.toString()
+        }
+    }
+
+    private fun getInputFields(struct: StructureShape): List<String> {
+        return getFields(struct)
+    }
+
+    private fun getOutputFields(struct: StructureShape): String? {
+        val ret = getFields(struct)
+        if (ret.size > 1) {
+            throw ExpectationNotMetException("Output structures ${struct.id} should have at most 1 field", SourceLocation.NONE)
+        }
+        return ret.firstOrNull()
+    }
+
+    private fun defFun() {
+        writer.openBlock("static PyMethodDef ${MODULE_NAME}_methods[] = {")
+            methodList.forEach {
+                writer.write("{\"$it\", method_$it, METH_VARARGS, \"\"},")
+            }
+            writer.write("{NULL, NULL, 0, NULL}" + System.lineSeparator())
+        writer.closeBlock("};")
+    }
+
+    private fun defModule() {
+        writer.write("""
+            static struct PyModuleDef ${MODULE_NAME}_module = {
                 PyModuleDef_HEAD_INIT,
-                "$moduleName",
-                "$moduleDescription",
-                $memorySize,
-                ${moduleName}_methods
+                "$MODULE_NAME",
+                "",
+                -1,
+                ${MODULE_NAME}_methods
+                NULL,
+                NULL,
+                NULL,
+                NULL
             };
 
-            PyMODINIT_FUNC PyInit_${moduleName}(void) {
-                return PyModule_Create(&${moduleName}_module);
+            PyMODINIT_FUNC PyInit_${MODULE_NAME}(void) {
+                return PyModule_Create(&${MODULE_NAME}_module);
             }
         """.trimIndent())
     }
 
-    fun writeFunc(attribute: String, returnType: String, funcName: String, comment: String = "") {
-        // add method to list
-        methodList.add(Pair<String, String>(funcName, comment))
+    private fun writeFun(op: OperationShape) {
+        methodList.add(op.id.name)
 
-        writeToFile(
-        """
-            $attribute $returnType method_$funcName(PyObject *self, PyObject *args) {
-                // placeholder for parsing argument
-                // return placeholder
+        val input = model.expectShape(op.input.orNull(), StructureShape::class.java)
+        val output = model.expectShape(op.output.orNull(), StructureShape::class.java)
+
+        val inputFields = getInputFields(input)
+        val outputField = getOutputFields(output)
+
+        writer.openBlock("static PyObject *method_${op.id.name}(PyObject *self, PyObject *args) {")
+            .write("(void)self;")
+            .write("(void)args;")
+        writer.writeNewLine()
+
+            // argument parse
+            if (inputFields.isNotEmpty()) {
+                // At most 26 arguments... Should be enough!
+                inputFields.forEachIndexed { i, it ->
+                    writer.write("$it ${varName[i]};")
+                }
+
+                val format = inputFields.map { getFormat(it) }.joinToString("")
+                val formatArgs = inputFields.mapIndexed { i, _ -> "&${varName[i]}" }.joinToString (", ")
+                writer.write("/* Parse arguments */")
+                writer.openBlock("if (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {")
+                    .write("return NULL;")
+                writer.closeBlock("}")
             }
-        """.trimIndent())
+
+        // function call
+        if (outputField != null) {
+            writer.writeInline("$outputField ret = ")
+        }
+        val params = inputFields.mapIndexed { i, _ -> "${varName[i]}" }.joinToString (", ")
+        writer.write("${op.id.name}($params);")
+
+        // return
+        writer.write("${getReturnType(outputField)};")
+
+        writer.closeBlock("}")
+        writer.writeNewLine()
     }
 
-    fun setupPy(version: String, author: String, email:String ) {
-        var setupFile = File("setup.py")
-        setupFile.writeText(
-            """
-            from distutils.core import setup, Extension
+    private fun finalize() {
+        defFun()
+        writer.writeNewLine()
+        defModule()
+    }
 
-            def main():
-                setup(name="$moduleName",
-                      version="$version",
-                      description="$moduleDescription",
-                      author="$author",
-                      author_email="$email",
-                      ext_modules=[Extension("$moduleName", ["$filename"])])
+    fun execute() {
+        // for each method
+        writer.write("#include <Python.h>")
+            .write("#include \"api.h\"")
+            .write("")
 
-            if __name__ == "__main__":
-                main()
-        """.trimIndent())
+        model.operationShapes.forEach {
+            writeFun(it)
+        }
+
+        finalize()
     }
 }

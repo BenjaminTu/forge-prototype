@@ -3,8 +3,7 @@ package software.amazon.smithy.crt.python
 
 import software.amazon.smithy.build.PluginContext
 import software.amazon.smithy.build.SmithyBuildPlugin
-import software.amazon.smithy.model.shapes.StructureShape
-import java.sql.Struct
+import software.amazon.smithy.codegen.core.writer.CodegenWriterDelegator
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -24,14 +23,18 @@ class PythonCodegenPlugin : SmithyBuildPlugin {
         LOG.warning("Running PythonCodegenPlugin...")
 
         try {
-            val model = pluginContext.model
-            val writer = PythonWriterNew(model)
-            writer.execute()
+            val gen = CodegenWriterDelegator<MyWriter>(
+                pluginContext.fileManifest,
+                null,
+                MyWriterFactory()
+            )
 
-//            it.accept(pluginContext.fileManifest.baseDir) { pythonFile ->
-//                pluginContext.fileManifest.addFile(pythonFile)
-//                LOG.info("Generated ${pythonFile.toAbsolutePath()}")
-//            }
+            gen.useFileWriter("aws.c") {
+                PythonWriter(it, pluginContext.model).execute()
+            }
+
+            // generate
+            gen.flushWriters()
 
         } catch (ex: Throwable) {
             System.err.println(ex.message)

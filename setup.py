@@ -13,7 +13,7 @@ import setuptools.command.build_ext
 import shutil
 import subprocess
 import sys
-
+from shutil import copy
 
 def is_64bit():
     return sys.maxsize > 2**32
@@ -127,7 +127,6 @@ if sys.platform != 'darwin' and sys.platform != 'win32':
                            ]))
     AWS_LIBS.append(AwsLib('s2n'))
 
-AWS_LIBS.append(AwsLib('aws-crt-ffi'))
 AWS_LIBS.append(AwsLib('aws-c-common'))
 AWS_LIBS.append(AwsLib('aws-c-cal'))
 AWS_LIBS.append(AwsLib('aws-c-io'))
@@ -136,8 +135,8 @@ AWS_LIBS.append(AwsLib('aws-c-compression'))
 AWS_LIBS.append(AwsLib('aws-c-event-stream'))
 AWS_LIBS.append(AwsLib('aws-c-http'))
 AWS_LIBS.append(AwsLib('aws-c-auth'))
-AWS_LIBS.append(AwsLib('aws-c-mqtt'))
-AWS_LIBS.append(AwsLib('aws-c-s3'))
+# needs to be at the end of the list
+AWS_LIBS.append(AwsLib('aws-crt-ffi'))
 
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 DEP_BUILD_DIR = os.path.join(PROJECT_DIR, 'build', 'deps')
@@ -145,6 +144,9 @@ DEP_INSTALL_PATH = os.environ.get('AWS_C_INSTALL', os.path.join(DEP_BUILD_DIR, '
 
 VERSION_RE = re.compile(r""".*__version__ = ["'](.*?)['"]""", re.S)
 
+SRC_FOLDER = os.path.join(PROJECT_DIR, "smithy-crt-test", "build", "smithyprojections", "smithy-crt-test", "apigateway", "python-codegen")
+# copy aws-crt-ffi/src/api.h to build folder
+copy(os.path.join(PROJECT_DIR, "aws-crt-ffi", "src", "api.h"), SRC_FOLDER)
 
 class aws_build_ext(setuptools.command.build_ext.build_ext):
     def _build_dependency(self, aws_lib):
@@ -261,12 +263,11 @@ def aws_ext():
     if distutils.ccompiler.get_default_compiler() != 'msvc':
         extra_compile_args += ['-Wextra', '-Werror', '-Wno-strict-aliasing', '-std=gnu99']
 
-    src = [os.path.join(PROJECT_DIR, 'playground/aws.c')]
     return setuptools.Extension(
         'aws',
         language='c',
         libraries=libraries,
-        sources=src,
+        sources=glob.glob(os.path.join(SRC_FOLDER, "*.c")),
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         extra_objects=extra_objects
