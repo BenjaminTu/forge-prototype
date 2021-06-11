@@ -34,6 +34,7 @@ structure aws_crt_default_allocator_output {
     ret: aws_crt_allocator
 }
 
+@malloc
 operation aws_crt_default_allocator {
     input: void,
     output: aws_crt_default_allocator_output
@@ -45,6 +46,7 @@ structure aws_crt_mem_acquire_input {
     size: size_t
 }
 
+@malloc
 structure aws_crt_mem_acquire_output {
     @required
     @pointer
@@ -63,6 +65,7 @@ structure aws_crt_mem_release_input {
     mem: void
 }
 
+@free
 operation aws_crt_mem_release {
     input: aws_crt_mem_release_input,
     output: void

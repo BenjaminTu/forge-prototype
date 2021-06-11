@@ -123,6 +123,7 @@ structure aws_crt_credentials_acquire_output {
     ret: aws_crt_credentials,
 }
 
+@malloc
 operation aws_crt_credentials_acquire {
     input: aws_crt_credentials_acquire_input,
     output: aws_crt_credentials_acquire_output
@@ -134,6 +135,7 @@ structure aws_crt_credentials_release_input {
     credentials: aws_crt_credentials,
 }
 
+@free
 operation aws_crt_credentials_release {
     input: aws_crt_credentials_release_input,
     output: void
