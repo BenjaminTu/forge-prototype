@@ -1,5 +1,5 @@
 
-package software.amazon.smithy.crt.traits.python
+package software.amazon.smithy.crt.python
 
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.codegen.core.writer.CodegenWriter

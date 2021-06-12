@@ -1,5 +1,5 @@
 
-package software.amazon.smithy.crt.traits.python
+package software.amazon.smithy.crt.python
 
 import software.amazon.smithy.build.PluginContext
 import software.amazon.smithy.build.SmithyBuildPlugin
