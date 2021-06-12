@@ -1,23 +1,13 @@
 namespace com.aws.ffi
 
-// /* Traits */
 @trait
-structure ctype {
-    @required
-    typename: String
-}
-
-@trait
-structure const {}
-
-@trait
-structure pointer {}
+string ctype
 
 @trait
 structure opaque {}
 
 @trait
-structure malloc {}
+structure pointer {}
 
 @trait
-structure free {}
+structure const {}

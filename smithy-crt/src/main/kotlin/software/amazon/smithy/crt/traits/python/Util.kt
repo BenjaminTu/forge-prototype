@@ -1,4 +1,4 @@
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.traits.python
 
 import java.util.Optional
 

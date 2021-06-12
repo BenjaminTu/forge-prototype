@@ -2,41 +2,41 @@ namespace com.aws.ffi
 
 // /* Ctypes */
 
-@ctype(typename: "uint8_t")
+@ctype("uint8_t")
 structure uint8_t {
     @required
     value: Integer
 }
 
-@ctype(typename: "int32_t")
+@ctype("int32_t")
 structure int32_t {
     @required
     value: Integer
 }
 
-@ctype(typename: "int64_t")
+@ctype("int64_t")
 structure int64_t {
     @required
     value: BigInteger
 }
 
-@ctype(typename: "uint64_t")
+@ctype("uint64_t")
 structure uint64_t {
     @required
     value: BigInteger
 }
 
-@ctype(typename: "size_t")
+@ctype("size_t")
 structure size_t {
     @required
     value: BigInteger
 }
 
-@ctype(typename: "char *")
+@ctype("char *")
 structure string {
     @required
     value: String
 }
 
-@ctype(typename: "void")
+@ctype("void")
 structure void {}

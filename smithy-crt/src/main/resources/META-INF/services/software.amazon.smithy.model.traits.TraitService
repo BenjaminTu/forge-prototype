@@ -1,0 +1,4 @@
+software.amazon.smithy.crt.traits.CTypeTrait$Provider
+software.amazon.smithy.crt.traits.OpaqueTrait$Provider
+software.amazon.smithy.crt.traits.PointerTrait$Provider
+software.amazon.smithy.crt.traits.ConstTrait$Provider

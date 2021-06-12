@@ -1,10 +1,9 @@
 
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.traits.python
 
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.codegen.core.writer.CodegenWriter
 import software.amazon.smithy.codegen.core.writer.ImportContainer
-import software.amazon.smithy.utils.CodeWriter
 
 
 class MyWriter(namespace: String) :
