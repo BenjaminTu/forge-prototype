@@ -159,7 +159,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             methodList.forEach {
                 writer.write("{\"$it\", method_$it, METH_VARARGS, \"\"},")
             }
-            writer.write("{NULL, NULL, 0, NULL}" + System.lineSeparator())
+            writer.write("{NULL, NULL, 0, NULL}")
         writer.closeBlock("};")
     }
 
