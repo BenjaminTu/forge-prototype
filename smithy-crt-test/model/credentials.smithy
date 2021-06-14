@@ -99,6 +99,7 @@ operation aws_crt_credentials_options_set_expiration_timepoint_seconds {
 
 structure aws_crt_credentials_new_input {
     @required
+    @const
     options: aws_crt_credentials_options,
 }
 

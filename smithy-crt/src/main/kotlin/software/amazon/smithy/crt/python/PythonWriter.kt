@@ -9,12 +9,11 @@ import software.amazon.smithy.model.SourceLocation
 import software.amazon.smithy.model.node.ExpectationNotMetException
 import software.amazon.smithy.model.shapes.MemberShape
 import software.amazon.smithy.model.shapes.OperationShape
-import software.amazon.smithy.model.shapes.ShapeId
 import software.amazon.smithy.model.shapes.StructureShape
 import java.lang.StringBuilder
-import java.lang.reflect.Member
 
 const val MODULE_NAME = "aws"
+// At most 26 arguments... Should be enough!
 val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
 private val varMap = mapOf(
@@ -23,37 +22,33 @@ private val varMap = mapOf(
     "size_t" to 'n',
     "uint8_t" to 'I',
     "uint64_t" to 'I',
-)
+).withDefault {
+    // objects
+    'O'
+}
 
 private val returnMap = mapOf(
     "const char *" to "PyUnicode_FromString",
     "int32_t" to "PyLong_FromLong",
     "size_t" to "PyLong_fromSize_t",
-)
+).withDefault {
+    // objects
+    ""
+}
 
 
 class PythonWriter(private val writer: MyWriter, private val model: Model) {
-    private var methodList = mutableListOf<String>()
+    private val methodList = mutableListOf<String>()
 
-    private fun getFormat(cTypeName: String): Char {
-        // return format, else treat as object pointer
-        return varMap[cTypeName] ?: 'o'
+    private fun isObject(key: String): Boolean{
+        return !varMap.containsKey(key)
     }
 
     private fun getReturnType(returnType: String?): String {
-        return when {
-            returnType == null -> {
-                // no return type (void)
-                "Py_RETURN_NONE"
-            }
-            returnMap[returnType] == null -> {
-                // object pointers (no entry)
-                "return PyLong_FromVoidPtr((void *)ret)"
-            }
-            else -> {
-                // primitive (entry exists)
-                "return ${returnMap[returnType]}(ret)"
-            }
+        return if (returnType == null) {
+            "Py_RETURN_NONE"
+        } else {
+            "return ${returnMap.getValue(returnType)}(ret)"
         }
     }
 
@@ -64,20 +59,14 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             str.append("const ")
         }
 
-        if (model.expectShape(shape.target).hasTrait(CTypeTrait::class.java)) {
-            val trait = model.expectShape(shape.target).expectTrait(CTypeTrait::class.java)
-            if (varMap[trait.value] != null) {
-                str.append("${trait.value} ")
-            } else {
-                str.append("PyObject ")
-            }
-        }
+        val trait = model.expectShape(shape.target).expectTrait(CTypeTrait::class.java)
+        str.append(trait.value)
 
         // TODO: Should not both exist, try to see if can be enforced on model
         if (model.expectShape(shape.target).hasTrait(OpaqueTrait::class.java)) {
-            str.append("*")
+            str.append(" *")
         } else if (shape.hasTrait(PointerTrait::class.java)) {
-            str.append("*")
+            str.append(" *")
         }
 
         return str.toString()
@@ -106,6 +95,63 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             throw ExpectationNotMetException("Output structures ${struct.id} should have at most 1 field", SourceLocation.NONE)
         }
         return ret.firstOrNull()
+    }
+
+    private fun parseArgs(inputFields: List<String>, params: MutableList<Char>) {
+        if (inputFields.isNotEmpty()) {
+            inputFields.forEachIndexed { i, it ->
+                if (!varMap.containsKey(it)) {
+                    // override object variable declaration with PyObject *
+                    writer.write("PyObject *${varName[i]};")
+                } else {
+                    writer.write("$it ${varName[i]};")
+                }
+            }
+            writer.writeNewLine()
+
+            val format = inputFields.map { varMap.getValue(it) }.joinToString("")
+            val formatArgs = inputFields.mapIndexed { i, _ -> "&${varName[i]}" }.joinToString (", ")
+
+            writer.write("/* Parse arguments */")
+            writer.openBlock("if (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {")
+                .write("return NULL;")
+            writer.closeBlock("}")
+
+            // If input is object, unwrap it with PyCapsule_GetPointer
+            val objectIndices = inputFields.withIndex().filter { isObject(it.value) }.map { it.index }
+
+            objectIndices.forEachIndexed { i, it ->
+                // unused variable names
+                val tempName = varName[inputFields.size + i]
+                // original variable name
+                val oriName = varName[i]
+
+                // get pointer
+                writer.write("void *$tempName;")
+                writer.write("$tempName = (void *) PyCapsule_GetPointer($oriName, \"${inputFields[i]}\");")
+
+                // swap out variable in parameter
+                params[it] = tempName
+            }
+        }
+    }
+
+    private fun functionCall(funName:String, param: List<Char>, outputField: String?) {
+        // collapse params to String
+        val paramsString = param.joinToString (", ")
+
+        if (outputField != null) {
+            if (isObject(outputField)) {
+                // object
+                writer.write("PyObject *ret = PyCapsule_New(${funName}($paramsString), \"$outputField\", NULL);")
+            } else {
+                // primitives
+                writer.write("$outputField ret = ${funName}($paramsString);")
+            }
+        } else {
+            // no return
+            writer.write("${funName}($paramsString);")
+        }
     }
 
     private fun defFun() {
@@ -138,7 +184,8 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
     }
 
     private fun writeFun(op: OperationShape) {
-        methodList.add(op.id.name)
+        val funName = op.id.name
+        methodList.add(funName)
 
         val input = model.expectShape(op.input.orNull(), StructureShape::class.java)
         val output = model.expectShape(op.output.orNull(), StructureShape::class.java)
@@ -146,67 +193,21 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         val inputFields = getInputFields(input)
         val outputField = getOutputFields(output)
 
-        writer.openBlock("static PyObject *method_${op.id.name}(PyObject *self, PyObject *args) {")
+        writer.openBlock("static PyObject *method_${funName}(PyObject *self, PyObject *args) {")
             .write("(void)self;")
             .write("(void)args;")
         writer.writeNewLine()
 
-        var params = inputFields.mapIndexed { i, _ -> varName[i] }.toMutableList()
+        val params = inputFields.mapIndexed { i, _ -> varName[i] }.toMutableList()
 
-        // argument parse
-            if (inputFields.isNotEmpty()) {
-                // At most 26 arguments... Should be enough!
-                inputFields.forEachIndexed { i, it ->
-                    writer.write("$it${varName[i]};")
-                }
-                writer.writeNewLine()
-
-                val format = inputFields.map { getFormat(it) }.joinToString("")
-                val formatArgs = inputFields.mapIndexed { i, _ -> "&${varName[i]}" }.joinToString (", ")
-
-                writer.write("/* Parse arguments */")
-                writer.openBlock("if (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {")
-                    .write("return NULL;")
-                writer.closeBlock("}")
-
-                // If input is object, assume its PyCapsule and get the pointer
-                var objectIndices = format.withIndex().filter { it.value =='o' }.map { it.index }
-
-                objectIndices.forEachIndexed() { i, it ->
-                    // unused variable names
-                    var tempName = varName[inputFields.size + i]
-                    // original variable name
-                    var oriName = varName[i]
-
-                    // get pointer
-                    writer.write("void *$tempName;")
-                    writer.write("$tempName = (void *) PyCapsule_GetPointer($oriName, \"${inputFields[i]}\");")
-
-                    // swap out variable in parameter
-                    params[it] = tempName
-                }
-
-            }
-
-        // collapse to string
-        val paramsString = params.joinToString (", ")
+        // parse arguments
+        parseArgs(inputFields, params)
 
         // function call
-        if (outputField != null) {
-            if (varMap[outputField] == null) {
-                // object
-                writer.write("PyObject *ret = PyCapsule_New(${op.id.name}($paramsString), \"$outputField\", NULL);")
-                writer.write("return ret;")
-            } else {
-                // primitives
-                writer.write("$outputField ret = ${op.id.name}($paramsString);")
-                writer.write("${getReturnType(outputField)};")
-            }
-        } else {
-            // no returns
-            writer.write("${op.id.name}($paramsString);")
-            writer.write("${getReturnType(outputField)};")
-        }
+        functionCall(funName, params, outputField)
+
+        // return statement
+        writer.write("${getReturnType(outputField)};")
 
         writer.closeBlock("}")
         writer.writeNewLine()
@@ -222,8 +223,8 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         // for each method
         writer.write("#include <Python.h>")
             .write("#include \"api.h\"")
-            .write("")
 
+        writer.writeNewLine()
         model.operationShapes.forEach {
             writeFun(it)
         }

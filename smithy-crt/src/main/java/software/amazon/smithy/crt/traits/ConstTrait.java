@@ -12,10 +12,6 @@ public final class ConstTrait extends AnnotationTrait {
         super(ID, node);
     }
 
-    public ConstTrait() {
-        this(Node.objectNode());
-    }
-
     public static final class Provider extends AnnotationTrait.Provider<ConstTrait> {
         public Provider() {
             super(ID, ConstTrait::new);
