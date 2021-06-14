@@ -198,7 +198,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             .write("(void)args;")
         writer.writeNewLine()
 
-        val params = inputFields.mapIndexed { i, _ -> varName[i] }.toMutableList()
+        val params = varName.slice(inputFields.indices).toMutableList()
 
         // parse arguments
         parseArgs(inputFields, params)
