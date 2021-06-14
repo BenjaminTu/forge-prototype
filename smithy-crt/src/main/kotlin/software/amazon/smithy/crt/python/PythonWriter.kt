@@ -110,7 +110,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             writer.writeNewLine()
 
             val format = inputFields.map { varMap.getValue(it) }.joinToString("")
-            val formatArgs = inputFields.mapIndexed { i, _ -> "&${varName[i]}" }.joinToString (", ")
+            val formatArgs = params.joinToString(", ") { "&$it" }
 
             writer.write("/* Parse arguments */")
             writer.openBlock("if (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {")
