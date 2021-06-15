@@ -14,12 +14,10 @@ operation aws_crt_clean_up {
 
 // AWS_CRT_API int aws_crt_test_error(int err);
 structure aws_crt_test_error_input {
-    @required
     err: int32_t
 }
 
 structure aws_crt_test_error_output {
-    @required
     ret: int32_t
 }
 
@@ -30,7 +28,6 @@ operation aws_crt_test_error {
 
 // AWS_CRT_API aws_crt_allocator *aws_crt_default_allocator(void);
 structure aws_crt_default_allocator_output {
-    @required
     ret: aws_crt_allocator
 }
 
@@ -41,12 +38,10 @@ operation aws_crt_default_allocator {
 
 // AWS_CRT_API void *aws_crt_mem_acquire(size_t size);
 structure aws_crt_mem_acquire_input {
-    @required
     size: size_t
 }
 
 structure aws_crt_mem_acquire_output {
-    @required
     @pointer
     ret: void
 }
@@ -58,7 +53,6 @@ operation aws_crt_mem_acquire {
 
 // AWS_CRT_API void aws_crt_mem_release(void *mem);
 structure aws_crt_mem_release_input {
-    @required
     @pointer
     mem: void
 }

@@ -2,7 +2,6 @@ namespace com.aws.ffi
 
 // AWS_CRT_API int aws_crt_last_error(void);
 structure aws_crt_last_error_output {
-    @required
     ret: int32_t
 }
 
@@ -13,12 +12,10 @@ operation aws_crt_last_error {
 
 // AWS_CRT_API const char *aws_crt_error_str(int err);
 structure aws_crt_error_str_input {
-    @required
     err: int32_t
 }
 
 structure aws_crt_error_str_output {
-    @required
     @const
     ret: string
 }
@@ -30,12 +27,10 @@ operation aws_crt_error_str {
 
 // AWS_CRT_API const char *aws_crt_error_name(int err);
 structure aws_crt_error_name_input {
-    @required
     err: int32_t
 }
 
 structure aws_crt_error_name_output {
-    @required
     @const
     ret: string
 }
@@ -47,12 +42,10 @@ operation aws_crt_error_name {
 
 // AWS_CRT_API const char *aws_crt_error_debug_str(int err);
 structure aws_crt_error_debug_str_input {
-    @required
     err: int32_t
 }
 
 structure aws_crt_error_debug_str_output {
-    @required
     @const
     ret: string
 }

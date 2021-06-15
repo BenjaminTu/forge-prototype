@@ -22,6 +22,11 @@ structure aws_crt_credentials_options {}
 @opaque
 structure aws_crt_credentials_provider {}
 
+// typedef struct _aws_crt_credentials_provider_static_options aws_crt_credentials_provider_static_options;
+@ctype("aws_crt_credentials_provider_static_options")
+@opaque
+structure aws_crt_credentials_provider_static_options {}
+
 
 
 
