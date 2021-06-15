@@ -1,5 +1,30 @@
 namespace com.aws.ffi
 
+// AWS_CRT_API aws_crt_credentials_provider *aws_crt_credentials_provider_acquire(
+//     aws_crt_credentials_provider *credentials_provider);
+structure aws_crt_credentials_provider_acquire_input {
+    credentials_provider: aws_crt_credentials_provider,
+}
+
+structure aws_crt_credentials_provider_acquire_output {
+    ret: aws_crt_credentials_provider,
+}
+
+operation aws_crt_credentials_provider_acquire {
+    input: aws_crt_credentials_provider_acquire_input,
+    output: aws_crt_credentials_provider_acquire_output
+}
+
+// AWS_CRT_API void aws_crt_credentials_provider_release(aws_crt_credentials_provider *credentials_provider);
+structure aws_crt_credentials_provider_release_input {
+    credentials_provider: aws_crt_credentials_provider,
+}
+
+operation aws_crt_credentials_provider_release {
+    input: aws_crt_credentials_provider_release_input,
+    output: void
+}
+
 // AWS_CRT_API aws_crt_credentials_provider_static_options *aws_crt_credentials_provider_static_options_new(void);
 structure aws_crt_credentials_provider_static_options_new_output {
     ret: aws_crt_credentials_provider_static_options
