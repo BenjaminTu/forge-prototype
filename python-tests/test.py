@@ -19,6 +19,7 @@ aws_crt_credentials_options_set_expiration_timepoint_seconds(new_cred, 42)
 # credentials testing
 pt = aws_crt_credentials_new(new_cred)
 aws_crt_credentials_release(pt)
+aws_crt_credentials_options_release(new_cred)
 
 # credentials_provider_static_options testing
 new_cred_option = aws_crt_credentials_provider_static_options_new()
@@ -29,5 +30,14 @@ aws_crt_credentials_provider_static_options_set_session_token(new_cred_option, t
 # credentials_provider testing
 pt = aws_crt_credentials_provider_static_new(new_cred_option)
 aws_crt_credentials_provider_release(pt)
+aws_crt_credentials_provider_static_options_release(new_cred_option)
+
+# event group testing
+option = aws_crt_event_loop_group_options_new()
+aws_crt_event_loop_group_options_set_max_threads(option, 10)
+pt = aws_crt_event_loop_group_new(option)
+aws_crt_event_loop_group_release(pt)
+aws_crt_event_loop_group_options_release(option)
+
 
 aws_crt_clean_up()

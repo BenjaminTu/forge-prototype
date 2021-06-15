@@ -27,7 +27,14 @@ structure aws_crt_credentials_provider {}
 @opaque
 structure aws_crt_credentials_provider_static_options {}
 
+// typedef struct aws_event_loop_group aws_crt_event_loop_group;
+@ctype("aws_crt_event_loop_group")
+@opaque
+structure aws_crt_event_loop_group {}
 
-
+// typedef struct _aws_crt_event_loop_group_options aws_crt_event_loop_group_options;
+@ctype("aws_crt_event_loop_group_options")
+@opaque
+structure aws_crt_event_loop_group_options {}
 
 
