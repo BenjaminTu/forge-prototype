@@ -127,8 +127,8 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
                 val oriName = varName[i]
 
                 // get pointer
-                writer.write("void *$tempName;")
-                writer.write("$tempName = (void *) PyCapsule_GetPointer($oriName, \"${inputFields[i]}\");")
+                writer.write("${inputFields[i]} $tempName;")
+                writer.write("$tempName = (${inputFields[i]}) PyCapsule_GetPointer($oriName, \"pointer\");")
 
                 // swap out variable in parameter
                 params[it] = tempName
@@ -143,7 +143,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         if (outputField != null) {
             if (isObject(outputField)) {
                 // object
-                writer.write("PyObject *ret = PyCapsule_New(${funName}($paramsString), \"$outputField\", NULL);")
+                writer.write("PyObject *ret = PyCapsule_New(${funName}($paramsString), \"pointer\", NULL);")
             } else {
                 // primitives
                 writer.write("$outputField ret = ${funName}($paramsString);")
