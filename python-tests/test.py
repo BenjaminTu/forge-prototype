@@ -26,6 +26,7 @@ aws_crt_credentials_provider_static_options_set_access_key_id(new_cred_option, k
 aws_crt_credentials_provider_static_options_set_secret_access_key(new_cred_option, key, len(key))
 aws_crt_credentials_provider_static_options_set_session_token(new_cred_option, token, len(token))
 
+# credentials_provider testing
 pt = aws_crt_credentials_provider_static_new(new_cred_option)
 aws_crt_credentials_provider_release(pt)
 
