@@ -12,10 +12,6 @@ public final class OpaqueTrait extends AnnotationTrait {
         super(ID, node);
     }
 
-    public OpaqueTrait() {
-        this(Node.objectNode());
-    }
-
     public static final class Provider extends AnnotationTrait.Provider<OpaqueTrait> {
         public Provider() {
             super(ID, OpaqueTrait::new);

@@ -12,10 +12,6 @@ public final class PointerTrait extends AnnotationTrait {
         super(ID, node);
     }
 
-    public PointerTrait() {
-        this(Node.objectNode());
-    }
-
     public static final class Provider extends AnnotationTrait.Provider<PointerTrait> {
         public Provider() {
             super(ID, PointerTrait::new);

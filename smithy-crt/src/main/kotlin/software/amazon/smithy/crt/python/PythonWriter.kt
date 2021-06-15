@@ -10,7 +10,7 @@ import software.amazon.smithy.model.node.ExpectationNotMetException
 import software.amazon.smithy.model.shapes.MemberShape
 import software.amazon.smithy.model.shapes.OperationShape
 import software.amazon.smithy.model.shapes.StructureShape
-import java.lang.StringBuilder
+import java.util.*
 
 const val MODULE_NAME = "aws"
 // At most 26 arguments... Should be enough!
@@ -22,6 +22,7 @@ private val varMap = mapOf(
     "size_t" to 'n',
     "uint8_t" to 'I',
     "uint64_t" to 'I',
+    "const uint8_t *" to 's'
 ).withDefault {
     // objects
     'O'
@@ -52,21 +53,25 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         }
     }
 
+    private fun getWrapperName(name: String): String {
+            return name.removePrefix("const ").trim()
+    }
+
     private fun getCTypeName(shape: MemberShape): String {
-        val str = StringBuilder()
+        val str = StringJoiner(" ")
 
         if (shape.hasTrait(ConstTrait::class.java)) {
-            str.append("const ")
+            str.add("const")
         }
 
         val trait = model.expectShape(shape.target).expectTrait(CTypeTrait::class.java)
-        str.append(trait.value)
+        str.add(trait.value)
 
         // TODO: Should not both exist, try to see if can be enforced on model
         if (model.expectShape(shape.target).hasTrait(OpaqueTrait::class.java)) {
-            str.append(" *")
+            str.add("*")
         } else if (shape.hasTrait(PointerTrait::class.java)) {
-            str.append(" *")
+            str.add("*")
         }
 
         return str.toString()
@@ -128,7 +133,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
 
                 // get pointer
                 writer.write("${inputFields[i]} $tempName;")
-                writer.write("$tempName = (${inputFields[i]}) PyCapsule_GetPointer($oriName, \"pointer\");")
+                writer.write("$tempName = (${inputFields[i]}) PyCapsule_GetPointer($oriName, \"${getWrapperName(inputFields[i])}\");")
 
                 // swap out variable in parameter
                 params[it] = tempName
@@ -143,7 +148,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         if (outputField != null) {
             if (isObject(outputField)) {
                 // object
-                writer.write("PyObject *ret = PyCapsule_New(${funName}($paramsString), \"pointer\", NULL);")
+                writer.write("PyObject *ret = PyCapsule_New((void *)${funName}($paramsString), \"${getWrapperName(outputField)}\", NULL);")
             } else {
                 // primitives
                 writer.write("$outputField ret = ${funName}($paramsString);")
