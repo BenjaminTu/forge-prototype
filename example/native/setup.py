@@ -1,4 +1,6 @@
 from distutils.core import setup, Extension
+from shutil import copy
+import os
 
 def main():
     setup(name="aws",
