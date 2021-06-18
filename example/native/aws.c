@@ -3,6 +3,11 @@
 typedef struct aws_allocator aws_crt_allocator;
 aws_crt_allocator *aws_crt_default_allocator(void);
 
+typedef int(aws_crt_input_stream_seek_fn)(void *user_data, int64_t offset, aws_crt_input_stream_seek_basis seek_basis);
+void aws_crt_input_stream_options_set_seek(
+    int *options,
+    aws_crt_input_stream_seek_fn *seek_fn);
+
 const char *aws_crt_init(void);
 const char *aws_crt_clean_up(void);
 const char *aws_crt_test_error(int);
@@ -92,7 +97,6 @@ static PyMethodDef AwsMethods[] = {
     {"aws_crt_default_allocator", method_aws_crt_default_allocator, METH_VARARGS, "Python interface for the C library"},
     {NULL, NULL, 0, NULL}
 };
-
 
 static struct PyModuleDef awsmodule = {
     PyModuleDef_HEAD_INIT,
