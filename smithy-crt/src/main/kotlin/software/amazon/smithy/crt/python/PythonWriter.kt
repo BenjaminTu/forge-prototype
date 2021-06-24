@@ -69,6 +69,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         str.add(trait.value)
 
         // TODO: Should not both exist, try to see if can be enforced on model
+        // TODO: multiple pointer support(for http)
         if (model.expectShape(shape.target).hasTrait(OpaqueTrait::class.java)) {
             str.add("*")
         } else if (shape.hasTrait(PointerTrait::class.java)) {

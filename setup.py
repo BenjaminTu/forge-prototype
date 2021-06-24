@@ -144,7 +144,7 @@ DEP_INSTALL_PATH = os.environ.get('AWS_C_INSTALL', os.path.join(DEP_BUILD_DIR, '
 
 VERSION_RE = re.compile(r""".*__version__ = ["'](.*?)['"]""", re.S)
 
-SRC_FOLDER = os.path.join(PROJECT_DIR, "smithy-crt-test", "build", "smithyprojections", "smithy-crt-test", "apigateway", "python-codegen")
+SRC_FOLDER = os.path.join(PROJECT_DIR, "smithy-crt-test/lib")
 # copy aws-crt-ffi/src/api.h to build folder
 copy(os.path.join(PROJECT_DIR, "aws-crt-ffi", "src", "api.h"), SRC_FOLDER)
 
@@ -226,7 +226,7 @@ class aws_build_ext(setuptools.command.build_ext.build_ext):
         super().run()
 
 
-def aws_ext():
+def aws_ext(module_name):
     # fetch the CFLAGS/LDFLAGS from env
     extra_compile_args = os.environ.get('CFLAGS', '').split()
     extra_link_args = os.environ.get('LDFLAGS', '').split()
@@ -264,10 +264,10 @@ def aws_ext():
         extra_compile_args += ['-Wextra', '-Werror', '-Wno-strict-aliasing', '-std=gnu99']
 
     return setuptools.Extension(
-        'aws',
+        module_name,
         language='c',
         libraries=libraries,
-        sources=glob.glob(os.path.join(SRC_FOLDER, "*.c")),
+        sources=glob.glob(os.path.join(SRC_FOLDER, module_name + ".c")),
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         extra_objects=extra_objects
@@ -280,10 +280,12 @@ setuptools.setup(
     author="Amazon Web Services, Inc",
     author_email="aws-sdk-common-runtime@amazon.com",
     description="A common runtime for AWS Python projects",
-    ext_modules=[aws_ext()],
+    ext_modules=[aws_ext('aws'), aws_ext('input_stream')],
     cmdclass={'build_ext': aws_build_ext},
     test_suite='test',
     tests_require=[
         'boto3'
-    ]
+    ],
+    package_dir={'': 'src'},
+    packages=[''],
 )

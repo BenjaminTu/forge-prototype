@@ -37,4 +37,12 @@ structure aws_crt_event_loop_group {}
 @opaque
 structure aws_crt_event_loop_group_options {}
 
+// typedef struct _aws_crt_http_headers aws_crt_http_headers;
+@ctype("aws_crt_http_headers")
+@opaque
+structure aws_crt_http_headers {}
 
+// typedef struct _aws_crt_http_message aws_crt_http_message;
+@ctype("aws_crt_http_message")
+@opaque
+structure aws_crt_http_message {}
