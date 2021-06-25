@@ -69,11 +69,15 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         str.add(trait.value)
 
         // TODO: Should not both exist, try to see if can be enforced on model
-        // TODO: multiple pointer support(for http)
         if (model.expectShape(shape.target).hasTrait(OpaqueTrait::class.java)) {
             str.add("*")
         } else if (shape.hasTrait(PointerTrait::class.java)) {
-            str.add("*")
+            val pointerTrait = shape.expectTrait(PointerTrait::class.java)
+            if (pointerTrait.doublePointer.orElse(false)) {
+                str.add("**")
+            } else {
+                str.add("*")
+            }
         }
 
         return str.toString()
@@ -194,8 +198,8 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         val funName = op.id.name
         methodList.add(funName)
 
-        val input = model.expectShape(op.input.orNull(), StructureShape::class.java)
-        val output = model.expectShape(op.output.orNull(), StructureShape::class.java)
+        val input = model.expectShape(op.input.orElse(null), StructureShape::class.java)
+        val output = model.expectShape(op.output.orElse(null), StructureShape::class.java)
 
         val inputFields = getInputFields(input)
         val outputField = getOutputFields(output)

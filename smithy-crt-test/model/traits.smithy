@@ -7,7 +7,9 @@ string ctype
 structure opaque {}
 
 @trait
-structure pointer {}
+structure pointer {
+    doublePointer: Boolean
+}
 
 @trait
 structure const {}

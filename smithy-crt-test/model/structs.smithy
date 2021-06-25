@@ -37,6 +37,27 @@ structure aws_crt_event_loop_group {}
 @opaque
 structure aws_crt_event_loop_group_options {}
 
+// typedef struct _aws_crt_input_stream_options aws_crt_input_stream_options;
+@ctype("aws_crt_input_stream_options")
+@opaque
+structure aws_crt_input_stream_options {}
+
+// typedef struct aws_input_stream aws_crt_input_stream;
+@ctype("aws_crt_input_stream")
+@opaque
+structure aws_crt_input_stream {}
+
+// typedef struct aws_crt_buf {
+//     uint8_t *blob;
+//     size_t length;
+// } aws_crt_buf;
+@ctype("aws_crt_buf")
+structure aws_crt_buf {
+    @pointer
+    blob: uint8_t,
+    length: size_t
+}
+
 // typedef struct _aws_crt_http_headers aws_crt_http_headers;
 @ctype("aws_crt_http_headers")
 @opaque
