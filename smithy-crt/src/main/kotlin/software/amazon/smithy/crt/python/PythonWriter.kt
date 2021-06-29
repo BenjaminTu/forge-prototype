@@ -17,16 +17,17 @@ const val MODULE_NAME = "aws"
 val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
 private val varMap = mapOf(
-    "const char *" to 's',
-    "int32_t" to 'i',
-    "size_t" to 'n',
-    "uint8_t" to 'I',
-    "uint16_t" to 'I',
-    "uint64_t" to 'I',
-    "const uint8_t *" to 's'
+    "const char *" to "s",
+    "int32_t" to "i",
+    "size_t" to "n",
+    "uint8_t" to "i",
+    "uint16_t" to "i",
+    "uint64_t" to "I",
+    "const uint8_t *" to "y*",
+    "Py_buffer" to "y*"
 ).withDefault {
     // objects
-    'O'
+    "O"
 }
 
 private val returnMap = mapOf(
@@ -80,6 +81,11 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             }
         }
 
+        // override type to Py_buffer if type is uint8_t *
+        if (str.toString().contains("uint8_t *")) {
+            return "Py_buffer"
+        }
+
         return str.toString()
     }
 
@@ -120,7 +126,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             }
             writer.writeNewLine()
 
-            val format = inputFields.map { varMap.getValue(it) }.joinToString("")
+            val format = inputFields.joinToString("") { varMap.getValue(it) }
             val formatArgs = params.joinToString(", ") { "&$it" }
 
             writer.write("/* Parse arguments */")
@@ -135,11 +141,27 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
                 // unused variable names
                 val tempName = varName[inputFields.size + i]
                 // original variable name
-                val oriName = varName[i]
+                val oriName = varName[it]
 
                 // get pointer
                 writer.write("${inputFields[i]} $tempName;")
                 writer.write("$tempName = (${inputFields[i]}) PyCapsule_GetPointer($oriName, \"${getWrapperName(inputFields[i])}\");")
+
+                // swap out variable in parameter
+                params[it] = tempName
+            }
+
+            // If input is a uint8_t *, parameter is .buf instead
+            val strIndices = inputFields.withIndex().filter { it.value == "Py_buffer" }.map { it.index }
+
+            strIndices.forEachIndexed { i, it ->
+                // unused variable names
+                val tempName = varName[inputFields.size + objectIndices.size + i]
+                // original variable name
+                val oriName = varName[it]
+
+                // assign buf
+                writer.write("const uint8_t * $tempName = (const uint8_t *) $oriName.buf;")
 
                 // swap out variable in parameter
                 params[it] = tempName
@@ -163,6 +185,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             // no return
             writer.write("${funName}($paramsString);")
         }
+
     }
 
     private fun defFun() {
@@ -216,6 +239,11 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
 
         // function call
         functionCall(funName, params, outputField)
+
+        // release Py_buffer if necessary
+        inputFields.withIndex().filter { it.value == "Py_buffer" }.map { it.index }.forEach {
+            writer.write("PyBuffer_Release(&${varName[it]});")
+        }
 
         // return statement
         writer.write("${getReturnType(outputField)};")

@@ -59,9 +59,9 @@ class InputStreamTest():
 
 
 # read/seek test from python
-# test = InputStreamTest()
-# test.test_read_official_io()
-# test.test_read_duck_typed_io()
+test = InputStreamTest()
+test.test_read_official_io()
+test.test_read_duck_typed_io()
 
 # callback function test
 src_data = b'a long string here'

@@ -1,5 +1,6 @@
 from aws import *
 from input_stream_py import InputStream
+import struct
 
 aws_crt_init()
 print("initiated")
@@ -7,9 +8,9 @@ print("initiated")
 pt = aws_crt_mem_acquire(100)
 aws_crt_mem_release(pt)
 
-key = 'TESTSECRETaccesskeyThatDefinitelyDoesntWork'
-token = 'ThisIsMyTestSessionTokenIMadeItUpMyself'
-key_id = 'TESTAWSACCESSKEYID'
+key = b'TESTSECRETaccesskeyThatDefinitelyDoesntWork'
+token = b'ThisIsMyTestSessionTokenIMadeItUpMyself'
+key_id = b'TESTAWSACCESSKEYID'
 
 # credentials_options testing
 new_cred = aws_crt_credentials_options_new()
@@ -46,7 +47,10 @@ aws_crt_event_loop_group_release(pt)
 aws_crt_event_loop_group_options_release(option)
 print("Event Group successfully created")
 
+
+blob = struct.pack(">I", 4) + b'host' + struct.pack(">I", 16) + b's3.amazonaws.com'
 # http testing
-aws_crt_http_headers_new_from_blob("hello", len("hello"))
+aws_crt_http_headers_new_from_blob(blob, len(blob))
+aws_crt_http_message_new_from_blob(blob, len(blob))
 aws_crt_clean_up()
 print("cleaned up")
