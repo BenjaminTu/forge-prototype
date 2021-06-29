@@ -280,7 +280,7 @@ setuptools.setup(
     author="Amazon Web Services, Inc",
     author_email="aws-sdk-common-runtime@amazon.com",
     description="A common runtime for AWS Python projects",
-    ext_modules=[aws_ext('aws'), aws_ext('input_stream')],
+    ext_modules=[aws_ext('aws'), aws_ext('input_stream'), aws_ext('crt_util')],
     cmdclass={'build_ext': aws_build_ext},
     test_suite='test',
     tests_require=[

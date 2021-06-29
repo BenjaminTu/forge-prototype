@@ -1,5 +1,6 @@
 import input_stream as ist
 from input_stream_py import InputStream
+from crt_util import *
 import io
 
 class MockPythonStream:
@@ -67,4 +68,4 @@ test.test_read_duck_typed_io()
 src_data = b'a long string here'
 python_stream = io.BytesIO(src_data)
 test = InputStream(python_stream)
-ist.test_io(test.i_stream)
+test_io(test.i_stream)

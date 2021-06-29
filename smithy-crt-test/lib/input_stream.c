@@ -271,41 +271,6 @@ static PyObject *method_aws_crt_input_stream_release(PyObject *self, PyObject *a
     Py_RETURN_NONE;
 }
 
-static PyObject *method_test_io(PyObject *self, PyObject *args) {
-    (void)self;
-    (void)args;
-
-    PyObject *a;
-
-    /* Parse arguments */
-    if (!PyArg_ParseTuple(args, "O", &a)) {
-        return NULL;
-    }
-    aws_crt_input_stream *b;
-    b = (aws_crt_input_stream *) PyCapsule_GetPointer(a, "aws_crt_input_stream *");
-    aws_crt_input_stream_status *c = aws_crt_mem_calloc(1, sizeof(aws_crt_input_stream_status));
-    aws_crt_input_stream_get_status(b, c);
-    printf("%d\n", c->is_end_of_stream);
-    printf("%d\n", c->is_valid);
-
-    uint8_t *d;
-    d = aws_crt_mem_calloc(1, 4 * sizeof(char));
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-
-    Py_RETURN_NONE;
-}
-
 static PyMethodDef input_stream_methods[] = {
     {"aws_crt_input_stream_options_new", method_aws_crt_input_stream_options_new, METH_VARARGS, ""},
     {"aws_crt_input_stream_options_set_seek", method_aws_crt_input_stream_options_set_seek, METH_VARARGS, ""},
@@ -315,7 +280,6 @@ static PyMethodDef input_stream_methods[] = {
     {"aws_crt_input_stream_options_set_destroy", method_aws_crt_input_stream_options_set_destroy, METH_VARARGS, ""},
     {"aws_crt_input_stream_new", method_aws_crt_input_stream_new, METH_VARARGS, ""},
     {"aws_crt_input_stream_release", method_aws_crt_input_stream_release, METH_VARARGS, ""},
-    {"test_io", method_test_io, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
