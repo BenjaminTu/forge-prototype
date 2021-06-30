@@ -1,5 +1,5 @@
 
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.util
 
 import software.amazon.smithy.codegen.core.Symbol
 import software.amazon.smithy.codegen.core.writer.CodegenWriter

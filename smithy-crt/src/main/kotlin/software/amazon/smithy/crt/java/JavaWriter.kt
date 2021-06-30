@@ -1,16 +1,16 @@
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.java
 
 import software.amazon.smithy.crt.traits.CTypeTrait
 import software.amazon.smithy.crt.traits.ConstTrait
 import software.amazon.smithy.crt.traits.OpaqueTrait
 import software.amazon.smithy.crt.traits.PointerTrait
-import software.amazon.smithy.crt.util.MyWriter
 import software.amazon.smithy.model.Model
 import software.amazon.smithy.model.SourceLocation
 import software.amazon.smithy.model.node.ExpectationNotMetException
 import software.amazon.smithy.model.shapes.MemberShape
 import software.amazon.smithy.model.shapes.OperationShape
 import software.amazon.smithy.model.shapes.StructureShape
+import software.amazon.smithy.crt.util.MyWriter
 import java.util.*
 
 const val MODULE_NAME = "aws"
@@ -41,7 +41,7 @@ private val returnMap = mapOf(
 }
 
 
-class PythonWriter(private val writer: MyWriter, private val model: Model) {
+class JavaWriter(private val writer: MyWriter, private val model: Model) {
     private val methodList = mutableListOf<String>()
 
     private fun isObject(key: String): Boolean{

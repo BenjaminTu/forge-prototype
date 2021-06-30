@@ -1,4 +1,4 @@
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.util
 
 import software.amazon.smithy.codegen.core.writer.CodegenWriterFactory
 

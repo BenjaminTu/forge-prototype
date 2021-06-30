@@ -1,5 +1,5 @@
 
-package software.amazon.smithy.crt.python
+package software.amazon.smithy.crt.java
 
 import software.amazon.smithy.build.PluginContext
 import software.amazon.smithy.build.SmithyBuildPlugin
@@ -9,8 +9,8 @@ import software.amazon.smithy.crt.util.MyWriterFactory
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class PythonCodegenPlugin : SmithyBuildPlugin {
-    private val LOG = Logger.getLogger(PythonCodegenPlugin::class.simpleName)
+class JavaCodegenPlugin : SmithyBuildPlugin {
+    private val LOG = Logger.getLogger(JavaCodegenPlugin::class.simpleName)
 
     override fun getName(): String {
         return "python-codegen"
@@ -22,7 +22,7 @@ class PythonCodegenPlugin : SmithyBuildPlugin {
         root.handlers.forEach {
             it.level = Level.ALL
         }
-        LOG.warning("Running PythonCodegenPlugin...")
+        LOG.warning("Running JavaCodegenPlugin...")
 
         try {
             val gen = CodegenWriterDelegator<MyWriter>(
@@ -31,8 +31,8 @@ class PythonCodegenPlugin : SmithyBuildPlugin {
                 MyWriterFactory()
             )
 
-            gen.useFileWriter("aws.c") {
-                PythonWriter(it, pluginContext.model).execute()
+            gen.useFileWriter("aws_java.c") {
+                JavaWriter(it, pluginContext.model).execute()
             }
 
             // generate
