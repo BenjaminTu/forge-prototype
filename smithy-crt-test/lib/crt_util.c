@@ -54,25 +54,12 @@ static PyObject *method_test_http(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O", &a)) {
         return NULL;
     }
-    aws_crt_input_stream *b;
-    b = (aws_crt_input_stream *) PyCapsule_GetPointer(a, "aws_crt_http_headers *");
-    aws_crt_input_stream_status *c = aws_crt_mem_calloc(1, sizeof(aws_crt_input_stream_status));
-    aws_crt_input_stream_get_status(b, c);
-    printf("%d\n", c->is_end_of_stream);
-    printf("%d\n", c->is_valid);
-
-    uint8_t *d;
-    d = aws_crt_mem_calloc(1, 4 * sizeof(char));
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
-    aws_crt_input_stream_read(b, d, 4);
-    printf("buffer from c: %s\n", d);
+    aws_crt_buf *b = (aws_crt_buf *) PyCapsule_GetPointer(a, "aws_crt_buf *");
+    printf("I got: ");
+    for (size_t i = 0; i < b->length; i++) {
+        printf("%d, ", (b->blob)[i]);
+    }
+    printf("\nI got: %zu\n", b->length);
 
     Py_RETURN_NONE;
 }
