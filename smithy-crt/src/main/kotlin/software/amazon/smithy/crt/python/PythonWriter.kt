@@ -13,7 +13,7 @@ import software.amazon.smithy.model.shapes.StructureShape
 import java.util.*
 
 const val MODULE_NAME = "aws"
-// At most 26 arguments... Should be enough!
+// At most 26 variable names... Should be enough!
 val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
 private val varMap = mapOf(
