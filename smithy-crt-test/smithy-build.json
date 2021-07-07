@@ -4,6 +4,8 @@
     "apigateway": {
       "plugins": {
         "python-codegen": {
+        },
+        "java-codegen": {
         }
       }
     }

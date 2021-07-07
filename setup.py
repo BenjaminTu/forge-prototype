@@ -144,7 +144,7 @@ DEP_INSTALL_PATH = os.environ.get('AWS_C_INSTALL', os.path.join(DEP_BUILD_DIR, '
 
 VERSION_RE = re.compile(r""".*__version__ = ["'](.*?)['"]""", re.S)
 
-SRC_FOLDER = os.path.join(PROJECT_DIR, "smithy-crt-test", "lib")
+SRC_FOLDER = os.path.join(PROJECT_DIR, "smithy-crt-test", "pythonlib")
 # copy aws-crt-ffi/src/api.h to build folder
 copy(os.path.join(PROJECT_DIR, "aws-crt-ffi", "src", "api.h"), SRC_FOLDER)
 
@@ -286,6 +286,6 @@ setuptools.setup(
     tests_require=[
         'boto3'
     ],
-    package_dir={'': "smithy-crt-test/lib"},
+    package_dir={'': "smithy-crt-test/pythonlib"},
     packages=[''],
 )

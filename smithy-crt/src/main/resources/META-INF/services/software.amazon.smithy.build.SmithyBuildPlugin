@@ -1,1 +1,2 @@
 software.amazon.smithy.crt.python.PythonCodegenPlugin
+software.amazon.smithy.crt.java.JavaCodegenPlugin

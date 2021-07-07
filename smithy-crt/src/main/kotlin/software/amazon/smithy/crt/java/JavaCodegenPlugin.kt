@@ -13,7 +13,7 @@ class JavaCodegenPlugin : SmithyBuildPlugin {
     private val LOG = Logger.getLogger(JavaCodegenPlugin::class.simpleName)
 
     override fun getName(): String {
-        return "python-codegen"
+        return "java-codegen"
     }
 
     override fun execute(pluginContext: PluginContext) {
@@ -34,7 +34,6 @@ class JavaCodegenPlugin : SmithyBuildPlugin {
             gen.useFileWriter("aws_java.c") {
                 JavaWriter(it, pluginContext.model).execute()
             }
-
             // generate
             gen.flushWriters()
 
