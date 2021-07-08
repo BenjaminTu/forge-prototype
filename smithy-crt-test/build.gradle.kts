@@ -8,7 +8,7 @@ dependencies {
 }
 
 description = "JNI bindings for the AWS Common Runtime"
-val srcDir = File("$rootDir/aws-crt-ffi/")
+val srcDir = File("$rootDir")
 val cmakeBuildDir = File(srcDir, "build")
 var buildType = "RelWithDebInfo"
 

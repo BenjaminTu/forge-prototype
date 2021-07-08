@@ -9,9 +9,8 @@ JNIEXPORT jobject JNICALL Java_AWS_httpHeadersNewFromBlob(JNIEnv *env, jobject o
 
     a = (*env)->GetByteArrayElements(env, blob, 0);
     aws_crt_http_headers *ret = aws_crt_http_headers_new_from_blob((uint8_t *) a, (int) blob_length);
-    return NULL;
 
-//    jclass cls = (*env)->FindClass(env, "AWS$Pointer");
-//    constructor = (*env)->GetMethodID(env, cls, "<init>", "(I)V");
-//    return (*env)->NewObject(env, cls, constructor, (long)ret);
+    jclass cls = (*env)->FindClass(env, "AWS$Pointer");
+    jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "(J)");
+    return (*env)->NewObject(env, cls, constructor, (long)ret);
 }
