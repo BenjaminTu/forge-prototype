@@ -5,6 +5,7 @@
 #include "api.h"
 
 JNIEXPORT jobject JNICALL Java_AWS_httpHeadersNewFromBlob(JNIEnv *env, jobject obj, jbyteArray blob, jint blob_length) {
+    (void)obj;
     jbyte *a;
 
     a = (*env)->GetByteArrayElements(env, blob, 0);
@@ -13,4 +14,10 @@ JNIEXPORT jobject JNICALL Java_AWS_httpHeadersNewFromBlob(JNIEnv *env, jobject o
     jclass cls = (*env)->FindClass(env, "AWS$Pointer");
     jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "(J)");
     return (*env)->NewObject(env, cls, constructor, (long)ret);
+}
+
+JNIEXPORT void JNICALL Java_AWS_crtInit(JNIEnv *env, jobject obj) {
+    (void)env;
+    (void)obj;
+    aws_crt_init();
 }

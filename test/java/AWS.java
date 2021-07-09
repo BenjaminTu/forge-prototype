@@ -29,7 +29,7 @@ public class AWS {  // Save as AWS.java
         // Test Driver
         AWS test = new AWS();
         test.crtInit();
-        test.httpHeadersNewFromBlob(a.array(), a.position());
+        // test.httpHeadersNewFromBlob(a.array(), a.position());
     }
 }
 

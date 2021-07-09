@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_AWS_httpHeadersNewFromBlob
   (JNIEnv *, jobject, jbyteArray, jint);
 
+/*
+ * Class:     AWS
+ * Method:    crtInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_AWS_crtInit
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

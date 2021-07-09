@@ -12,6 +12,8 @@ public class Test {
         a.putInt(v.length());
         a.put(v.getBytes());
         // Test Driver
-        new AWS().http_headers_new_from_blob(a.array(), a.position());
+        AWS test = new AWS();
+        test.crtInit();
+        test.httpHeadersNewFromBlob(a.array(), a.position());
     }
 }
