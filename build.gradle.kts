@@ -5,7 +5,7 @@
 
 plugins {
     `java-library`
-    kotlin("jvm") version "1.4.20" apply false
+    kotlin("jvm") version "1.5.20"
 }
 
 buildscript {
@@ -20,7 +20,7 @@ buildscript {
 }
 
 group = "software.amazon.awssdk.crt"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 description = "software.amazon.awssdk.crt:aws-crt"
 
 sourceSets {

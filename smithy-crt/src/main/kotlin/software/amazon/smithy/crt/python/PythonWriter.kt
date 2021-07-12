@@ -1,17 +1,10 @@
 package software.amazon.smithy.crt.python
 
-import software.amazon.smithy.crt.traits.CTypeTrait
-import software.amazon.smithy.crt.traits.ConstTrait
-import software.amazon.smithy.crt.traits.OpaqueTrait
-import software.amazon.smithy.crt.traits.PointerTrait
 import software.amazon.smithy.crt.util.MyWriter
 import software.amazon.smithy.model.Model
-import software.amazon.smithy.model.SourceLocation
-import software.amazon.smithy.model.node.ExpectationNotMetException
-import software.amazon.smithy.model.shapes.MemberShape
 import software.amazon.smithy.model.shapes.OperationShape
 import software.amazon.smithy.model.shapes.StructureShape
-import java.util.*
+import software.amazon.smithy.crt.util.*
 
 const val MODULE_NAME = "aws"
 // At most 26 variable names... Should be enough!
@@ -60,62 +53,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         return name.removePrefix("const ").trim()
     }
 
-    private fun getCTypeName(shape: MemberShape): String {
-        val str = StringJoiner(" ")
-
-        if (shape.hasTrait(ConstTrait::class.java)) {
-            str.add("const")
-        }
-
-        val trait = model.expectShape(shape.target).expectTrait(CTypeTrait::class.java)
-        str.add(trait.value)
-
-        // TODO: Should not both exist, try to see if can be enforced on model
-        if (model.expectShape(shape.target).hasTrait(OpaqueTrait::class.java)) {
-            str.add("*")
-        } else if (shape.hasTrait(PointerTrait::class.java)) {
-            val pointerTrait = shape.expectTrait(PointerTrait::class.java)
-            if (pointerTrait.doublePointer.orElse(false)) {
-                str.add("**")
-            } else {
-                str.add("*")
-            }
-        }
-
-        // override type to Py_buffer if type is uint8_t *
-        if (str.toString().contains("uint8_t *")) {
-            return "Py_buffer"
-        }
-
-        return str.toString()
-    }
-
-    /**
-     * Get structure's(input/output) fields
-     *
-     * @param struct StructureShape to analyze
-     * @return Returns the Ids of the field as a List of ShapeId
-     */
-
-    private fun getFields(struct: StructureShape): List<String> {
-        return struct.allMembers.toList().map{
-            getCTypeName(it.second)
-        }
-    }
-
-    private fun getInputFields(struct: StructureShape): List<String> {
-        return getFields(struct)
-    }
-
-    private fun getOutputFields(struct: StructureShape): String? {
-        val ret = getFields(struct)
-        if (ret.size > 1) {
-            throw ExpectationNotMetException("Output structures ${struct.id} should have at most 1 field", SourceLocation.NONE)
-        }
-        return ret.firstOrNull()
-    }
-
-    private fun parseArgs(inputFields: List<String>, params: MutableList<Char>) {
+    private fun parseArgs(inputFields: List<String>, params: MutableList<Char>, funName: String) {
         if (inputFields.isNotEmpty()) {
             inputFields.forEachIndexed { i, it ->
                 if (!varMap.containsKey(it)) {
@@ -132,6 +70,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
 
             writer.write("/* Parse arguments */")
             writer.openBlock("if (!PyArg_ParseTuple(args, \"$format\", $formatArgs)) {")
+                .write("printf(\"method_$funName parsing error\\n\");")
                 .write("return NULL;")
             writer.closeBlock("}")
 
@@ -222,11 +161,15 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         val funName = op.id.name
         methodList.add(funName)
 
-        val input = model.expectShape(op.input.orElse(null), StructureShape::class.java)
+        var input = model.expectShape(op.input.orElse(null), StructureShape::class.java)
         val output = model.expectShape(op.output.orElse(null), StructureShape::class.java)
 
-        val inputFields = getInputFields(input)
-        val outputField = getOutputFields(output)
+        // override type to Py_buffer if type is uint8_t *
+        val inputFields = getInputFields(input, model).toMutableList().map {
+            if (it.contains("uint8_t *")) "Py_buffer" else it
+        }
+        val outputField = getOutputFields(output, model)
+
 
         writer.openBlock("static PyObject *method_${funName}(PyObject *self, PyObject *args) {")
             .write("(void)self;")
@@ -236,7 +179,7 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         val params = varName.slice(inputFields.indices).toMutableList()
 
         // parse arguments
-        parseArgs(inputFields, params)
+        parseArgs(inputFields, params, funName)
 
         // function call
         functionCall(funName, params, outputField)

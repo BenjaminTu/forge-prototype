@@ -13,7 +13,7 @@ public class Test {
         a.put(v.getBytes());
         // Test Driver
         AWS test = new AWS();
-        test.crtInit();
-        test.httpHeadersNewFromBlob(a.array(), a.position());
+        // test.crtInit();
+        // test.httpHeadersNewFromBlob(a.array(), a.position());
     }
 }

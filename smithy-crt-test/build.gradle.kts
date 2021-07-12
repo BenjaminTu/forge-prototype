@@ -74,20 +74,35 @@ val cmakeBuild = tasks.register("cmakeBuild") {
     }
 }
 
-tasks.assemble {
-    dependsOn(cmakeBuild)
-}
-
-tasks.register<Copy>("copyToPythonLib") {
+val copyToPythonLib = tasks.register<Copy>("copyToPythonLib") {
     from(layout.buildDirectory.dir("smithyprojections/smithy-crt-test/apigateway/python-codegen"))
     into(layout.projectDirectory.dir("pythonlib"))
 }
 
-tasks.register<Copy>("copyToJavaLib") {
+val copyToJavaLib = tasks.register<Copy>("copyToJavaLib") {
+    dependsOn("build")
     from(layout.buildDirectory.dir("smithyprojections/smithy-crt-test/apigateway/java-codegen"))
     into(layout.projectDirectory.dir("javalib"))
+}
+
+val copyJavaLib = tasks.register<Copy>("copyJavaLib") {
+    dependsOn(cmakeBuild)
+    from("$rootDir/build/cmake-build/lib/libaws-crt-jni.dylib")
+    into("$rootDir/test/java")
+}
+
+tasks.register("java") {
+    dependsOn(copyToJavaLib, copyJavaLib)
+}
+
+tasks.register("python") {
+    dependsOn("build")
+    dependsOn(copyToPythonLib)
 }
 
 tasks["jar"].enabled = false
 
 tasks["build"].finalizedBy("copyToPythonLib", "copyToJavaLib")
+
+
+

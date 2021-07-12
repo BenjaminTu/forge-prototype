@@ -15,22 +15,6 @@ public class AWS {  // Save as AWS.java
 
     public native Pointer httpHeadersNewFromBlob(byte[] blob, int blob_length);
     public native void crtInit();
-
-    public static void main(String[] args) {
-        
-        String k = "test";
-        String v = "string";
-        ByteBuffer a = ByteBuffer.allocate(Integer.BYTES * 2 + k.length() + v.length());
-        // Java int is Big-Endian
-        a.putInt(k.length());
-        a.put(k.getBytes());
-        a.putInt(v.length());
-        a.put(v.getBytes());
-        // Test Driver
-        AWS test = new AWS();
-        test.crtInit();
-        // test.httpHeadersNewFromBlob(a.array(), a.position());
-    }
 }
 
 
