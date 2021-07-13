@@ -55,11 +55,11 @@ static PyObject *method_test_http(PyObject *self, PyObject *args) {
         return NULL;
     }
     aws_crt_buf *b = (aws_crt_buf *) PyCapsule_GetPointer(a, "aws_crt_buf *");
-    printf("I got: ");
+    printf("Expected buffer: [");
     for (size_t i = 0; i < b->length; i++) {
         printf("%d, ", (b->blob)[i]);
     }
-    printf("\nI got: %zu\n", b->length);
+    printf("]\nActual buffer len: %zu\n", b->length);
 
     Py_RETURN_NONE;
 }

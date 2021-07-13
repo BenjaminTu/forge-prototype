@@ -11,9 +11,11 @@ public class Test {
         a.put(k.getBytes());
         a.putInt(v.length());
         a.put(v.getBytes());
+
         // Test Driver
         AWS test = new AWS();
-         test.awsCrtInit();
-//         test.awsCrtHttpHeadersNewFromBlob(a.array(), a.position());
+        test.awsCrtInit();
+//        test.awsCrtHttpHeadersNewFromBlob(a.array(), a.position());
+        test.awsCrtCleanUp();
     }
 }

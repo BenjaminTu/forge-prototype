@@ -18,8 +18,8 @@ buf = aws_crt_new_buf()
 header = aws_crt_http_headers_new_from_blob(blob, len(blob))
 aws_crt_http_headers_to_blob(header, buf)
 test_http(buf)
-print("expected: %s" % str([b for b in blob]))
-print("len: %d" % len(blob))
+print("Expected buffer: %s" % str([b for b in blob]))
+print("Expected buffer len: %d" % len(blob))
 aws_crt_http_headers_release(header)
 
 # http msg test
@@ -33,8 +33,8 @@ aws_crt_http_message_set_body_stream(msg, test.i_stream)
 aws_crt_http_message_to_blob(msg, buf)
 # prints out content in buf
 test_http(buf)
-print("expected: " + str([b for b in blob]))
-print("len: " + str(len(blob)))
+print("Expected buffer: %s" % str([b for b in blob]))
+print("Expected buffer len: %d" % len(blob))
 aws_crt_http_message_release(msg)
 
 aws_crt_clean_up()
