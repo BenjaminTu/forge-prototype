@@ -33,7 +33,7 @@ operation aws_crt_http_headers_acquire {
 
 // AWS_CRT_API void aws_crt_http_headers_release(aws_crt_http_headers *headers);
 structure aws_crt_http_headers_release_input {
-    ret: aws_crt_http_headers,
+    headers: aws_crt_http_headers,
 }
 
 operation aws_crt_http_headers_release {
@@ -87,7 +87,7 @@ operation aws_crt_http_message_set_body_stream {
 
 // AWS_CRT_API void aws_crt_http_message_release(aws_crt_http_message *message);
 structure aws_crt_http_message_release_input {
-    ret: aws_crt_http_message,
+    message: aws_crt_http_message,
 }
 
 operation aws_crt_http_message_release {

@@ -6,8 +6,6 @@ import software.amazon.smithy.model.shapes.OperationShape
 import software.amazon.smithy.crt.util.*
 import software.amazon.smithy.model.shapes.StructureShape
 
-
-const val MODULE_NAME = "aws"
 // At most 26 variable names... Should be enough!
 val varName = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
@@ -48,7 +46,7 @@ class JavaWriter(private val writer: MyWriter, private val model: Model) {
     }
 
     private fun getReturnType(name: String?): String {
-        return if (name == null) "void" else "${returnMap.getValue(name)}"
+        return if (name == null) "void" else returnMap.getValue(name)
     }
 
     private fun parseArgHeaders(inputFields: List<String>): String {

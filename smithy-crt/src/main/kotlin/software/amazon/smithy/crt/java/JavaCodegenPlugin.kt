@@ -34,6 +34,11 @@ class JavaCodegenPlugin : SmithyBuildPlugin {
             gen.useFileWriter("AWS.c") {
                 JavaWriter(it, pluginContext.model).execute()
             }
+
+            gen.useFileWriter("AWS.java") {
+                JavaMethodWriter(it, pluginContext.model).execute()
+            }
+
             // generate
             gen.flushWriters()
 
