@@ -35,7 +35,7 @@ class JavaCodegenPlugin : SmithyBuildPlugin {
                 JavaWriter(it, pluginContext.model).execute()
             }
             // generate
-            // gen.flushWriters()
+            gen.flushWriters()
 
         } catch (ex: Throwable) {
             System.err.println(ex.message)

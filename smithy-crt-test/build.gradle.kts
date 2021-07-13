@@ -47,7 +47,7 @@ val cmakeConfigure = tasks.register("cmakeConfigure") {
 }
 
 val cmakeBuild = tasks.register("cmakeBuild") {
-    dependsOn(cmakeConfigure)
+    dependsOn(cmakeConfigure, copyToJavaLib)
     inputs.file("${srcDir.path}/CMakeLists.txt")
     inputs.file("${cmakeBuildDir}/cmake-build/CMakeCache.txt")
     inputs.files(fileTree("${srcDir.path}").matching {
@@ -92,7 +92,7 @@ val copyJavaLib = tasks.register<Copy>("copyJavaLib") {
 }
 
 tasks.register("java") {
-    dependsOn(copyToJavaLib, copyJavaLib)
+    dependsOn("build", copyToJavaLib, copyJavaLib)
 }
 
 tasks.register("python") {
@@ -102,7 +102,7 @@ tasks.register("python") {
 
 tasks["jar"].enabled = false
 
-tasks["build"].finalizedBy("copyToPythonLib", "copyToJavaLib")
+tasks["build"].finalizedBy("copyToPythonLib", "copyToJavaLib", "copyJavaLib")
 
 
 

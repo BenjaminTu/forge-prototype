@@ -14,6 +14,7 @@ public class AWS {  // Save as AWS.java
     }
 
     public native Pointer httpHeadersNewFromBlob(byte[] blob, int blob_length);
+
     public native void crtInit();
 }
 
