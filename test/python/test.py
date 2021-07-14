@@ -2,7 +2,6 @@ from aws import *
 from input_stream_py import InputStream
 import struct
 
-print("Here")
 aws_crt_init()
 print("Initiated\n")
 # crt testing
