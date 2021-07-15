@@ -24,6 +24,7 @@ private val varMap = mapOf(
 private val returnMap = mapOf(
     "const char *" to "jstring",
     "int32_t" to "jint",
+    "uint64_t" to "jlong",
     "size_t" to "jint",
 ).withDefault {
     "jobject"
@@ -107,8 +108,9 @@ class JavaWriter(private val writer: MyWriter, private val model: Model) {
                 writer.write("""
                     $outputField ret = $funName(${params.joinToString()});
                     jclass cls = (*env)->FindClass(env, "AWS${"$$"}Pointer");
-                    jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "(J)");
-                    return (*env)->NewObject(env, cls, constructor, (long)ret);
+                    jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "(LAWS;J)V");
+                    // since it's a subclass, we need to pass in the super class obj as well
+                    return (*env)->NewObject(env, cls, constructor, obj, (long)ret);
                 """.trimIndent()
                 )
             } else {

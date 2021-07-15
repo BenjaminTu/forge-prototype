@@ -88,8 +88,11 @@ val copyToJavaLib = tasks.register<Copy>("copyToJavaLib") {
 val copyJavaLib = tasks.register<Copy>("copyJavaLib") {
     dependsOn(cmakeBuild)
     from("$rootDir/build/cmake-build/lib/libaws-crt-jni.dylib")
+    from(layout.buildDirectory.dir("smithyprojections/smithy-crt-test/apigateway/java-codegen/AWS.java"))
     into("$rootDir/test/java")
 }
+
+
 
 tasks.register("java") {
     dependsOn("build", copyToJavaLib, copyJavaLib)

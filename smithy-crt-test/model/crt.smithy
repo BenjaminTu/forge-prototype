@@ -61,3 +61,29 @@ operation aws_crt_mem_release {
     input: aws_crt_mem_release_input,
     output: void
 }
+
+// AWS_CRT_API uint64_t aws_crt_mem_bytes(void);
+structure aws_crt_mem_bytes_output {
+    ret: uint64_t
+}
+
+operation aws_crt_mem_bytes {
+    input: void,
+    output: aws_crt_mem_bytes_output
+}
+
+// AWS_CRT_API uint64_t aws_crt_mem_count(void);
+structure aws_crt_mem_count_output {
+    ret: uint64_t
+}
+
+operation aws_crt_mem_count {
+    input: void,
+    output: aws_crt_mem_count_output
+}
+
+// AWS_CRT_API void aws_crt_mem_dump(void);
+operation aws_crt_mem_dump {
+    input: void,
+    output: void
+}

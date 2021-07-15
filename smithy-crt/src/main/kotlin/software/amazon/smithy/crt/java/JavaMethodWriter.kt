@@ -12,7 +12,7 @@ private val varMap = mapOf(
     "size_t" to "int",
     "uint8_t" to "int",
     "uint16_t" to "int",
-    "uint64_t" to "int",
+    "uint64_t" to "long",
     "const uint8_t *" to "byte[]",
 ).withDefault {
     "Pointer"
@@ -40,10 +40,14 @@ class JavaMethodWriter(private val writer: MyWriter, private val model: Model) {
                     System.loadLibrary("aws-crt-jni");
                 }
 
-                private class Pointer {
+                public class Pointer {
                     private long address;
                     public Pointer(long addr) {
                         address = addr;
+                    }
+                    
+                    public long getAddr() {
+                        return address;
                     }
                 }
                 """.trimIndent()
