@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: aws
+Version: 1.0.0
+Summary: A common runtime for AWS Python projects
+Home-page: UNKNOWN
+Author: Amazon Web Services, Inc
+Author-email: aws-sdk-common-runtime@amazon.com
+License: Apache 2.0
+Description: UNKNOWN
+Platform: UNKNOWN

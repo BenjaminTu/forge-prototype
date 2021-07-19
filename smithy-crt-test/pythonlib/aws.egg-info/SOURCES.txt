@@ -1,0 +1,10 @@
+README.md
+setup.py
+/Users/bnjamit/Documents/language_binding_toy/smithy-crt-test/pythonlib/aws.c
+/Users/bnjamit/Documents/language_binding_toy/smithy-crt-test/pythonlib/crt_util.c
+/Users/bnjamit/Documents/language_binding_toy/smithy-crt-test/pythonlib/input_stream.c
+smithy-crt-test/pythonlib/input_stream_py.py
+smithy-crt-test/pythonlib/aws.egg-info/PKG-INFO
+smithy-crt-test/pythonlib/aws.egg-info/SOURCES.txt
+smithy-crt-test/pythonlib/aws.egg-info/dependency_links.txt
+smithy-crt-test/pythonlib/aws.egg-info/top_level.txt

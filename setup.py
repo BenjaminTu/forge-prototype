@@ -226,7 +226,7 @@ class aws_build_ext(setuptools.command.build_ext.build_ext):
         super().run()
 
 
-def aws_ext(module_name):
+def aws_ext():
     # fetch the CFLAGS/LDFLAGS from env
     extra_compile_args = os.environ.get('CFLAGS', '').split()
     extra_link_args = os.environ.get('LDFLAGS', '').split()
@@ -263,11 +263,12 @@ def aws_ext(module_name):
     if distutils.ccompiler.get_default_compiler() != 'msvc':
         extra_compile_args += ['-Wextra', '-Werror', '-Wno-strict-aliasing', '-std=gnu99']
 
+    src_files = glob.glob(os.path.join(SRC_FOLDER, "*.c"))
     return setuptools.Extension(
-        module_name,
+        'aws',
         language='c',
         libraries=libraries,
-        sources=glob.glob(os.path.join(SRC_FOLDER, module_name + ".c")),
+        sources=src_files,
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
         extra_objects=extra_objects
@@ -280,7 +281,7 @@ setuptools.setup(
     author="Amazon Web Services, Inc",
     author_email="aws-sdk-common-runtime@amazon.com",
     description="A common runtime for AWS Python projects",
-    ext_modules=[aws_ext('aws'), aws_ext('input_stream'), aws_ext('crt_util')],
+    ext_modules=[aws_ext()],
     cmdclass={'build_ext': aws_build_ext},
     test_suite='test',
     tests_require=[

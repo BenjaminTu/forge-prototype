@@ -1,17 +1,17 @@
 #include <Python.h>
 #include "api.h"
 
-static PyObject *method_aws_crt_new_buf(PyObject *self, PyObject *args) {
+PyObject *method_aws_crt_new_buf(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
 
-    aws_crt_buf *buf = aws_crt_mem_acquire(sizeof(aws_crt_buf));
+    aws_crt_buf *buf = aws_crt_mem_calloc(1, sizeof(aws_crt_buf));
 
     PyObject *ret = PyCapsule_New(buf, "aws_crt_buf *", NULL);
     return ret;
 }
 
-static PyObject *method_test_io(PyObject *self, PyObject *args) {
+PyObject *method_test_io(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
 
@@ -25,8 +25,8 @@ static PyObject *method_test_io(PyObject *self, PyObject *args) {
     b = (aws_crt_input_stream *) PyCapsule_GetPointer(a, "aws_crt_input_stream *");
     aws_crt_input_stream_status *c = aws_crt_mem_calloc(1, sizeof(aws_crt_input_stream_status));
     aws_crt_input_stream_get_status(b, c);
-    printf("%d\n", c->is_end_of_stream);
-    printf("%d\n", c->is_valid);
+    printf("is_end_of_stream: %d\n", c->is_end_of_stream);
+    printf("is_valid: %d\n", c->is_valid);
 
     uint8_t *d;
     d = aws_crt_mem_calloc(1, 4 * sizeof(char));
@@ -40,11 +40,17 @@ static PyObject *method_test_io(PyObject *self, PyObject *args) {
     printf("buffer from c: %s\n", d);
     aws_crt_input_stream_read(b, d, 4);
     printf("buffer from c: %s\n", d);
+    aws_crt_input_stream_read(b, d, 4);
+    printf("buffer from c: %s\n", d);
+
+    aws_crt_input_stream_get_status(b, c);
+    printf("is_end_of_stream: %d\n", c->is_end_of_stream);
+    printf("is_valid: %d\n", c->is_valid);
 
     Py_RETURN_NONE;
 }
 
-static PyObject *method_test_http(PyObject *self, PyObject *args) {
+PyObject *method_test_http(PyObject *self, PyObject *args) {
     (void)self;
     (void)args;
 
@@ -62,27 +68,4 @@ static PyObject *method_test_http(PyObject *self, PyObject *args) {
     printf("]\nActual buffer len: %zu\n", b->length);
 
     Py_RETURN_NONE;
-}
-
-static PyMethodDef crt_util_methods[] = {
-    {"aws_crt_new_buf", method_aws_crt_new_buf, METH_VARARGS, ""},
-    {"test_io", method_test_io, METH_VARARGS, ""},
-    {"test_http", method_test_http, METH_VARARGS, ""},
-    {NULL, NULL, 0, NULL}
-};
-
-static struct PyModuleDef crt_util_module = {
-    PyModuleDef_HEAD_INIT,
-    "crt_util",
-    "",
-    -1,
-    crt_util_methods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-
-PyMODINIT_FUNC PyInit_crt_util(void) {
-    return PyModule_Create(&crt_util_module);
 }

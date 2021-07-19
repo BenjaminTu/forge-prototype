@@ -134,6 +134,20 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
             methodList.forEach {
                 writer.write("{\"$it\", method_$it, METH_VARARGS, \"\"},")
             }
+            // custom methods defined
+            writer.write("""
+                {"aws_crt_new_buf", method_aws_crt_new_buf, METH_VARARGS, ""},
+                {"test_io", method_test_io, METH_VARARGS, ""},
+                {"test_http", method_test_http, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_new", method_aws_crt_input_stream_options_new, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_set_seek", method_aws_crt_input_stream_options_set_seek, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_set_read", method_aws_crt_input_stream_options_set_read, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_set_get_status", method_aws_crt_input_stream_options_set_get_status, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_set_get_length", method_aws_crt_input_stream_options_set_get_length, METH_VARARGS, ""},
+                {"aws_crt_input_stream_options_set_destroy", method_aws_crt_input_stream_options_set_destroy, METH_VARARGS, ""},
+                {"aws_crt_input_stream_new", method_aws_crt_input_stream_new, METH_VARARGS, ""},
+                {"aws_crt_input_stream_release", method_aws_crt_input_stream_release, METH_VARARGS, ""},
+            """.trimIndent())
             writer.write("{NULL, NULL, 0, NULL}")
         writer.closeBlock("};")
     }
@@ -207,6 +221,20 @@ class PythonWriter(private val writer: MyWriter, private val model: Model) {
         // for each method
         writer.write("#include <Python.h>")
             .write("#include \"api.h\"")
+            // custom methods defined
+            .write("""
+                extern PyObject *method_aws_crt_new_buf(PyObject *, PyObject *);
+                extern PyObject *method_test_io(PyObject *, PyObject *);
+                extern PyObject *method_test_http(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_new(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_set_seek(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_set_read(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_set_get_status(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_set_get_length(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_options_set_destroy(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_new(PyObject *, PyObject *);
+                extern PyObject *method_aws_crt_input_stream_release(PyObject *, PyObject *);
+            """.trimIndent())
 
         writer.writeNewLine()
         model.operationShapes.forEach {

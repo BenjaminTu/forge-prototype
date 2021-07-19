@@ -1,6 +1,5 @@
-import input_stream as ist
 from input_stream_py import InputStream
-from crt_util import *
+from aws import *
 import io
 
 class MockPythonStream:
@@ -59,13 +58,20 @@ class InputStreamTest():
 
 
 
+aws_crt_init()
 # read/seek test from python
+print("Python Read/Seek Function Testing")
 test = InputStreamTest()
 test.test_read_official_io()
 test.test_read_duck_typed_io()
+print()
 
 # callback function test
+print("Callback Function from Extension Testing")
 src_data = b'a long string here'
+print("Expected string to be read: " + str(src_data))
 python_stream = io.BytesIO(src_data)
 test = InputStream(python_stream)
 test_io(test.i_stream)
+
+aws_crt_clean_up()

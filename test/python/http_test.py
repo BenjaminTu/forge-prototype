@@ -1,6 +1,5 @@
 from aws import *
 from input_stream_py import InputStream
-from crt_util import *
 import struct
 import io
 
