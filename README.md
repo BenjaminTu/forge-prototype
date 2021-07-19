@@ -347,5 +347,7 @@ to use generated java extension: make sure your current directory is in `test/ja
 ## Acknowledgments
 
 Special thanks to Justin for the major helping/overlooking this project.
-Thanks to Misha, Michael, Itamar and the CRT team for helping out when I’m stuck
+
+Thanks to Misha, Michael, Itamar and the CRT team for helping out when I’m stuck.
+
 Thanks to AWS for this internship?
