@@ -21,7 +21,7 @@ All the API exposed by `aws-crt-ffi` can be found [here](https://github.com/awsl
 
 ## Project Structure
 
-```
+```c
 .
 ├── CMakeLists.txt                   // Cmake for creating java libraries
 ├── README.md                        // README
@@ -57,7 +57,7 @@ The smithy code generation is executed as the following
 2. `smithy-crt-test` invokes the code generators in `smithy-crt` and the models in the `model` directory are the “tests” for the generators.(in other words, it will consume the given model and code gen!), the generated files will be in `smithy-crt-test/build/smithyprojections/smithy-crt-test/apigateway/java-codegen`, though it will already be copied to our library directories by our gradle tasks
 3. add your new smithy plugins into the resource folder in `smithy-crt` and `smithy-build.json` in `smith-crt-test`
 4. `XXXCodegenPlugin` will be invoked and that is your code generation entry point:
-   ```
+   ```kotlin
    // generate a file
    gen.useFileWriter("AWS.java") {
       // pass model into custom writer   
@@ -106,7 +106,7 @@ For customizing your own trait visit AWS Smithy for more details
 Currently the format of the API model is defined as the follow:
 Let’s take `aws_crt_credentials_options_set_access_key_id` as an example
 
-```
+```c
 AWS_CRT_API void aws_crt_credentials_options_set_access_key_id(
     aws_crt_credentials_options *options,
     const uint8_t *access_key_id,
@@ -169,7 +169,7 @@ The first language that was targeted to be experimented is Python.
 Python and C extensions have been very well documented and already in use in a lot of public libraries such as OpenCV.
 First we would need to declare an extension method that binds to the python method, take `aws_crt_mem_release` as an example:
 
-```
+```c
 static PyObject *method_aws_crt_mem_release(PyObject *self, PyObject *args) {
     // avoid unused variable warning
     (void)self;
@@ -196,7 +196,7 @@ static PyObject *method_aws_crt_mem_release(PyObject *self, PyObject *args) {
 
 then we can add the method to our method lists and add that to our module
 
-```
+```c
 static PyMethodDef aws_methods[] = {
     ...
     {"aws_crt_mem_release", method_aws_crt_mem_release, METH_VARARGS, ""},
@@ -220,7 +220,7 @@ PyMODINIT_FUNC PyInit_aws(void) {
 Strings are handled differently in every language, especially between C and other languages like the ones targeted here.
 Python uses PyBuffer to encapsulate a byte array and requires the extension to release it before returning.
 
-```
+```c
 Py_buffer b;
 // parse input
 const uint8_t * e = (const uint8_t *) b.buf;
@@ -232,7 +232,7 @@ Often times, high level languages does not expose the idea of pointers to end us
 That means we need a way to pass pointers between C and our targeted language.
 In Python, we used the PyCapsule Library to encapsulate a pointer for both input and output:
 
-```
+```c
 const aws_crt_event_loop_group_options * b;
 b = (const aws_crt_event_loop_group_options *) PyCapsule_GetPointer(a, "aws_crt_event_loop_group_options *");
 PyObject *ret = PyCapsule_New((void *)aws_crt_event_loop_group_new(b), "aws_crt_event_loop_group *", NULL);
@@ -245,7 +245,7 @@ The second language we targeted was Java utilizing the JNI interface.
 In Java, language extensions interfaces with Java Native Interface(JNI) and the structure is quite similar with Python’s.
 Take `awsCrtCredentialsAcquire` as an example:
 
-```
+```c
 JNIEXPORT jobject JNICALL Java_AWS_awsCrtCredentialsAcquire(JNIEnv *env, jobject obj, jobject a) { // argument types are generated(parse input)
     // avoid unused variable warning
     (void)env;
@@ -267,14 +267,14 @@ JNIEXPORT jobject JNICALL Java_AWS_awsCrtCredentialsAcquire(JNIEnv *env, jobject
 
 In Java, since we want to pass in raw bytes into the extension for http methods, I mapped byte arrays to be the data type for JNI. We would need to extra the buffer from the array and then we can just use it as a byte pointer to pass into the FFI API.
 
-```
+```c
 jbyteArray b = ...
 const uint8_t * e = (const uint8_t *) (*env)->GetByteArrayElements(env, b, 0);
 ```
 
 For pointers, I decided to use a wrapper class that encapsulated the pointer address and pass them around as Pointer objects which contains the address as long.
 
-```
+```java
 private class Pointer {
     private long address;
     public Pointer(long addr) {
@@ -285,13 +285,13 @@ private class Pointer {
 
 Some function declaration in Java, note that we return a pointer object here
 
-```
+```java
 public native Pointer awsCrtHttpHeadersNewFromBlob(byte[] blob, int blob_length);
 ```
 
 Some handling we need to do for returning a Pointer
 
-```
+```c
 aws_crt_http_headers * ret = aws_crt_http_headers_new_from_blob(c, b);
 jclass cls = (*env)->FindClass(env, "AWS$Pointer");
 jmethodID constructor = (*env)->GetMethodID(env, cls, "<init>", "(LAWS;J)V");
@@ -312,7 +312,7 @@ The way to implement such functionality it is creating our own vtable structure 
 
 Don’t worry about the details of that because I hope no one has to deal with this ever again. The important thing is to inject handwritten code. Currently, we just hardcode our handwritten code into the generated files (via the generator) and compile them as one library, for example:
 
-```
+```c
 // hand written methods from other files
 extern PyObject *method_aws_crt_new_buf(PyObject *, PyObject *);
 extern PyObject *method_aws_crt_input_stream_options_new(PyObject *, PyObject *);
@@ -333,14 +333,16 @@ More robust ways can definitely be used such as using a setup script to separate
 
 ## TLDR; Quick Guide to Run
 
-the smithy models are in: `./smithy-crt-test/model`
-to generate code: `./gradlew :smithy-crt-test:build`
-to copy/install dependencies for testing: `./gradlew :smithy-crt-test:python`, `./gradlew :smithy-crt-test:java`
+- the smithy models are in: `./smithy-crt-test/model`
+- to generate code: `./gradlew :smithy-crt-test:build`
+- to copy/install dependencies for testing: `./gradlew :smithy-crt-test:python`, `./gradlew :smithy-crt-test:java`
 
-to install generated python extension: ` python3 -m pip install . --verbose` (recommend using a virtual environment)
+
+- to install generated python extension: ` python3 -m pip install . --verbose` (recommend using a virtual environment)
 to use generated java extension: make sure your current directory is in `test/java` or add `test/java` to your java library path to load `lib-aws-jni.dylib`
 
-all the library files(both generated and handwritten) for the extension are in `./smithy-crt-test/pythonlib/`, `./smithy-crt-test/javalib/`refer to the test files to see how the bindings are used.
+
+- all the library files(both generated and handwritten) for the extension are in `./smithy-crt-test/pythonlib/`, `./smithy-crt-test/javalib/`refer to the test files to see how the bindings are used.
 
 ## Acknowledgments
 
