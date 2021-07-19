@@ -1,6 +1,7 @@
 # Early Exploration into AWS Forge
 
 This is a document of what Benjamin has done over his internship during summer 2021
+
 Everything can be found here: https://github.com/BenjaminTu/forge-prototype
 
 ## Overview & Goal
