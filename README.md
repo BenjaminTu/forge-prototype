@@ -11,8 +11,8 @@ The goal of Benjamin’s internship was to explore and document the process of w
 
 ## Architectural change
 
-[Image: Current architecture of AWS SDKs]Current architecture of AWS SDKs
-[Image: AWS SDK]AWS SDK's architecture with Forge
+![alt text](https://github.com/BenjaminTu/forge-prototype/blob/master/cur-arch.jpg?raw=true)Current architecture of AWS SDKs
+![alt text](https://github.com/BenjaminTu/forge-prototype/blob/master/forge-arch.jpg?raw=true)AWS SDK's architecture with Forge
 
 With Forge, the SDK libraries are abstracted with [aws-crt-ffi](https://github.com/awslabs/aws-crt-ffi/), and along with the API model described in AWS Smithy, we can generate the necessary language bindings for each of the targeted language SDKs.
 
