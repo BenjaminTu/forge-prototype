@@ -81,6 +81,7 @@ val copyToPythonLib = tasks.register<Copy>("copyToPythonLib") {
 
 val copyToJavaLib = tasks.register<Copy>("copyToJavaLib") {
     dependsOn("build")
+    from("$rootDir/aws-crt-ffi/src/api.h")
     from(layout.buildDirectory.dir("smithyprojections/smithy-crt-test/apigateway/java-codegen"))
     into(layout.projectDirectory.dir("javalib"))
 }
@@ -92,15 +93,12 @@ val copyJavaLib = tasks.register<Copy>("copyJavaLib") {
     into("$rootDir/test/java")
 }
 
-
-
 tasks.register("java") {
     dependsOn("build", copyToJavaLib, copyJavaLib)
 }
 
 tasks.register("python") {
-    dependsOn("build")
-    dependsOn(copyToPythonLib)
+    dependsOn("build", copyToPythonLib)
 }
 
 tasks["jar"].enabled = false
