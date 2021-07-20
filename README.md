@@ -55,9 +55,9 @@ Understanding the project flow helped me how to pinpoint where to look and modif
 The smithy code generation is executed as the following
 
 1. code generators are defined in `smithy-crt`
-2. `smithy-crt-test` invokes the code generators in `smithy-crt` and the models in the `model` directory are the “tests” for the generators.(in other words, it will consume the given model and code gen!), the generated files will be in `smithy-crt-test/build/smithyprojections/smithy-crt-test/apigateway/java-codegen`, though it will already be copied to our library directories by our gradle tasks
+2. `smithy-crt-test` invokes the code generators in `smithy-crt` and the models in the `model` directory are the “tests” for the generators.(in other words, it will consume the given model and code gen!), the generated files will be in `smithy-crt-test/build/smithyprojections/smithy-crt-test/apigateway/xxx-codegen`, though it will already be copied to our library directories by our gradle tasks
 3. add your new smithy plugins into the resource folder in `smithy-crt` and `smithy-build.json` in `smith-crt-test`
-4. `XXXCodegenPlugin` will be invoked and that is your code generation entry point:
+4. `XXXCodegenPlugin` will be invoked and that is your code generation entry point, for example:
    ```kotlin
    // generate a file
    gen.useFileWriter("AWS.java") {
