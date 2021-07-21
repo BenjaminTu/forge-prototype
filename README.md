@@ -348,8 +348,8 @@ More robust ways can definitely be used such as using a setup script to separate
 
 ## Acknowledgments
 
-Special thanks to Justin and Russell for the major helping/overlooking this project.
+Special thanks to Justin, Misha and Russell for the major helping/overlooking this project.
 
-Thanks to Misha, Michael, Itamar and the CRT team for helping out when I’m stuck.
+Thanks to Michael, Itamar and the CRT team for helping out when I’m stuck.
 
 Thanks to AWS for this internship?
