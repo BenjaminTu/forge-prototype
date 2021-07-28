@@ -4,6 +4,20 @@ This is a document of what Benjamin has done over his internship during summer 2
 
 Everything can be found here: https://github.com/BenjaminTu/forge-prototype
 
+## TLDR; Quick Guide to Run
+
+- the smithy models are in: `./smithy-crt-test/model`
+- to generate code: `./gradlew :smithy-crt-test:build`
+- to copy/install dependencies for testing: `./gradlew :smithy-crt-test:python`, `./gradlew :smithy-crt-test:java`
+
+
+- to install generated python extension: ` python3 -m pip install . --verbose` (recommend using a virtual environment)
+- to use generated java extension: make sure your current directory is in `test/java` or add `test/java` to your java library path to load `lib-aws-jni.dylib`, and use the `-ea` flag to enable assertions
+
+
+- all the library files(both generated and handwritten) for the extension are in `./smithy-crt-test/pythonlib/`, `./smithy-crt-test/javalib/`
+- Please refer to the test files to see how the bindings are usedv
+
 ## Overview & Goal
 
 SEATTLE September 2022. Amazon Web Services Inc. releases Forge, an Open Source suite of tools for allowing inter-operation between programming languages. Forge allows developers to write code in any language they can build to a shared library (e.g. C, C++, Rust), then use it in any supported language (e.g. Python, .NET, Java, etc) as an extension. Forge is built on the AWS Common Runtime’s extensive knowledge of building high performance language interop, and produces the lowest overhead language bindings possible in each target language.
@@ -331,20 +345,6 @@ static PyMethodDef aws_methods[] = {
 ```
 
 More robust ways can definitely be used such as using a setup script to separate handwritten and generated methods along with header files, but the focus of the internship was a concept of proof rather than a well-structured project.
-
-## TLDR; Quick Guide to Run
-
-- the smithy models are in: `./smithy-crt-test/model`
-- to generate code: `./gradlew :smithy-crt-test:build`
-- to copy/install dependencies for testing: `./gradlew :smithy-crt-test:python`, `./gradlew :smithy-crt-test:java`
-
-
-- to install generated python extension: ` python3 -m pip install . --verbose` (recommend using a virtual environment)
-- to use generated java extension: make sure your current directory is in `test/java` or add `test/java` to your java library path to load `lib-aws-jni.dylib`
-
-
-- all the library files(both generated and handwritten) for the extension are in `./smithy-crt-test/pythonlib/`, `./smithy-crt-test/javalib/`
-- Please refer to the test files to see how the bindings are used.
 
 ## Acknowledgments
 
