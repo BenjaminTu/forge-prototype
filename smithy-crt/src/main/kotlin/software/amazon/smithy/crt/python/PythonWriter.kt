@@ -16,6 +16,7 @@ private val varMap = mapOf(
     "size_t" to "n",
     "uint8_t" to "i",
     "uint16_t" to "i",
+    "uint32_t" to "I",
     "uint64_t" to "I",
     "const uint8_t *" to "y*",
     "Py_buffer" to "y*"
@@ -28,6 +29,7 @@ private val returnMap = mapOf(
     "const char *" to "PyUnicode_FromString",
     "int32_t" to "PyLong_FromLong",
     "uint64_t" to "PyLong_FromUnsignedLong",
+    "uint32_t" to "PyLong_FromUnsignedLong",
     "size_t" to "PyLong_fromSize_t",
 ).withDefault {
     // objects

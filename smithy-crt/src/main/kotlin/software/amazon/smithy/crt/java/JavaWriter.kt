@@ -15,6 +15,7 @@ private val varMap = mapOf(
     "size_t" to "jint",
     "uint8_t" to "jint",
     "uint16_t" to "jint",
+    "uint32_t" to "jlong",
     "uint64_t" to "jlong",
     "const uint8_t *" to "jbyteArray",
 ).withDefault {
@@ -25,6 +26,7 @@ private val returnMap = mapOf(
     "const char *" to "jstring",
     "int32_t" to "jint",
     "uint64_t" to "jlong",
+    "uint32_t" to "jlong",
     "size_t" to "jint",
 ).withDefault {
     "jobject"

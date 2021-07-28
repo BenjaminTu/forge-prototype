@@ -12,6 +12,7 @@ private val varMap = mapOf(
     "size_t" to "int",
     "uint8_t" to "int",
     "uint16_t" to "int",
+    "uint32_t" to "long",
     "uint64_t" to "long",
     "const uint8_t *" to "byte[]",
 ).withDefault {

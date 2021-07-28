@@ -1,5 +1,7 @@
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.zip.CRC32;
+import java.util.zip.CRC32C;
 
 public class Test {
     public static void main(String[] args) {
@@ -77,6 +79,20 @@ public class Test {
         System.out.println("Http Headers created");
         test.awsCrtHttpMessageNewFromBlob(blob.array(), blob.position());
         System.out.println("Http Message created\n");
+
+        // CRC Testing
+        System.out.println("Crc testing");
+        byte[] msg = "hello world".getBytes();
+
+        CRC32 crc = new CRC32();
+        crc.update(msg);
+        assert(crc.getValue() == test.awsCrtCrc32(msg, msg.length, 0));
+        System.out.println("Crc32 passed");
+
+        CRC32C crcc = new CRC32C();
+        crcc.update(msg);
+        assert(crcc.getValue() == test.awsCrtCrc32c(msg, msg.length, 0));
+        System.out.println("Crc32c passed");
 
         test.awsCrtCleanUp();
         System.out.println("Cleaned up\n");

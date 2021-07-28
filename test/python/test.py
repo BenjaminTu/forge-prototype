@@ -1,6 +1,8 @@
 from aws import *
 from input_stream_py import InputStream
 import struct
+import binascii
+import crc32c
 
 aws_crt_init()
 print("Initiated\n")
@@ -66,6 +68,14 @@ aws_crt_http_headers_new_from_blob(blob, len(blob))
 print("Http Headers created")
 aws_crt_http_message_new_from_blob(blob, len(blob))
 print("Http Message created\n")
+
+# crc testing
+print("Crc testing")
+msg = b'hello world'
+assert(binascii.crc32(msg) == aws_crt_crc32(msg, len(msg), 0))
+print("Crc32 passed")
+assert(crc32c.crc32c(msg) == aws_crt_crc32c(msg, len(msg), 0))
+print("Crc32c passed")
 
 aws_crt_clean_up()
 print("Cleaned up\n")

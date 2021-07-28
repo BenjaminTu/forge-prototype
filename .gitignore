@@ -2,6 +2,8 @@
 */.idea
 */.gradle
 */build
+**/*.egg-info
+**/__pycache__/*
 
 # Ignore Gradle project-specific cache directory
 .gradle

@@ -27,6 +27,11 @@ structure uint64_t {
     value: BigInteger
 }
 
+@ctype("uint32_t")
+structure uint32_t {
+    value: BigInteger
+}
+
 @ctype("size_t")
 structure size_t {
     value: BigInteger
